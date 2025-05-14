@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Media.Imaging;
@@ -7,7 +6,7 @@ using Anu.Core.Services;
 
 namespace Anu.Core.ViewModels;
 
-public partial class ChatWindowViewModel: ViewModelBase
+public partial class ChatWindowViewModel : ViewModelBase
 {
     [ObservableProperty]
     private Bitmap? _imageSource;
@@ -22,6 +21,10 @@ public partial class ChatWindowViewModel: ViewModelBase
     [ObservableProperty]
     private int _windowPositionY;
     [ObservableProperty]
+    private int _cursorPositionX;
+    [ObservableProperty]
+    private int _cursorPositionY;
+    [ObservableProperty]
     private Vector _markdownScrollValue = Vector.Zero;
     [ObservableProperty]
     private string _mdText = "What can I help with?";
@@ -34,6 +37,10 @@ public partial class ChatWindowViewModel: ViewModelBase
     [ObservableProperty]
     private double _chatBoxHeight;
     [ObservableProperty]
+    private double _screenWidth;
+    [ObservableProperty]
+    private double _screenHeight;
+    [ObservableProperty]
     private bool _chatWithScreenshot;
     [ObservableProperty]
     private bool _readClipboardImage;
@@ -43,7 +50,9 @@ public partial class ChatWindowViewModel: ViewModelBase
     private bool _overlayWindow = true;
     [ObservableProperty]
     private bool _ignoreMouseEvents = true;
-    
+    [ObservableProperty]
+    private bool _firstShowActivated;
+
     partial void OnChatWithScreenshotChanged(bool value)
     {
         if (!value)
@@ -64,9 +73,9 @@ public partial class ChatWindowViewModel: ViewModelBase
         }
     }
 
-    public async Task AskWithImage(Bitmap? bitmap)
+    public async Task AskQuestion()
     {
-        Bitmap? image = bitmap;
+        Bitmap? image = null;
         if (image == null)
         {
             if (Application.Current is App app)
@@ -81,11 +90,14 @@ public partial class ChatWindowViewModel: ViewModelBase
                 }
             }
         }
-        ImageSource = image;
-        await AIChat.Ask(image, UserMessage);
-        ImageSource = null;
+
+        if (ImageSource == null)
+        {
+            ImageSource = image;
+        }
+        await AIChat.Ask();
     }
-    
+
     public void StopAIResponse()
     {
         if (!string.IsNullOrWhiteSpace(LastRequestId))
@@ -96,18 +108,19 @@ public partial class ChatWindowViewModel: ViewModelBase
 
     public async Task SendMessage()
     {
-        MdText += Environment.NewLine + Environment.NewLine + UserMessage;
-        await AskWithImage(ImageSource);
+        await AskQuestion();
     }
-    
+
     public void OnMouseMoved(int mouseX, int mouseY)
     {
+        CursorPositionX = mouseX;
+        CursorPositionY = mouseY;
 
         if (!FollowPointer)
         {
             return;
         }
-        
+
         int deltaX = -(int)(ChatBoxWidth / 2);
         int deltaY = 20;
 
@@ -120,6 +133,11 @@ public partial class ChatWindowViewModel: ViewModelBase
     public void UpdateText(string text)
     {
         MdText += text;
+    }
+
+    public void ClearScreen()
+    {
+        MdText = string.Empty;
     }
 
     public void ToggleFollowPointer()

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -29,7 +30,7 @@ namespace Anu.Core;
 
 public partial class App : Application
 {
-    
+
     private IClassicDesktopStyleApplicationLifetime? _lifetime;
     private ChatWindowViewModel? _chatWindowViewModel;
     private SettingsWindowViewModel? _settingsWindowViewModel;
@@ -37,13 +38,13 @@ public partial class App : Application
     private Window? _chatWindow;
     private Window? _shortcutHintWindow;
     private SparkleUpdater? _sparkle;
-    
+
     public ICommand SettingsCommand { get; }
-    
+
     public ICommand CheckUpdatesCommand { get; }
     public ICommand MainCommand { get; }
     public ICommand QuitCommand { get; }
-    
+
     public App()
     {
         QuitCommand = new RelayCommand(QuitApplication);
@@ -55,7 +56,7 @@ public partial class App : Application
         _configService = ServiceProviderBuilder.ServiceProvider?.GetRequiredService<ConfigService>();
         DataContext = this;
     }
-    
+
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -64,12 +65,12 @@ public partial class App : Application
         RegisterGlobalHotkeys();
         SetUpUpdater();
     }
-    
+
     private void RegisterGlobalHotkeys()
     {
         // predefined global hotkeys
-        GlobalHotkeyManager.BindHotkey("hide_chat_window", ModifierMask.None, KeyCode.VcEscape,  HideChatAndShortcutHintWindow);
-        
+        GlobalHotkeyManager.BindHotkey("hide_chat_window", ModifierMask.None, KeyCode.VcEscape, HideChatAndShortcutHintWindow);
+
         foreach (var (functionName, function) in FunctionRegistry._functionBindings)
         {
             var hotkey = _configService?.Get<ushort[]>("control." + functionName);
@@ -83,7 +84,7 @@ public partial class App : Application
             }
         }
     }
-    
+
     private void RegisterFunctions()
     {
         FunctionRegistry.RegisterFunction("open_chat_window", ToggleShowChatWindow);
@@ -93,6 +94,7 @@ public partial class App : Application
         FunctionRegistry.RegisterFunction("quit_app", QuitApplication);
         FunctionRegistry.RegisterFunction("click_through", ToggleClickThrough);
     }
+    
     public void ToggleClickThrough()
     {
         if (_chatWindow != null && _chatWindowViewModel != null)
@@ -100,7 +102,7 @@ public partial class App : Application
             Dispatcher.UIThread.InvokeAsync(() =>
             {
                 _chatWindowViewModel.IgnoreMouseEvents = !_chatWindowViewModel.IgnoreMouseEvents;
-                
+
                 ConfigureWindowBehaviors(_chatWindow, new WindowBehaviorOptions
                 {
                     ContentProtection = _chatWindowViewModel.ContentProtection,
@@ -109,7 +111,7 @@ public partial class App : Application
                 });
                 // fix text ghosting in click-through mode by remove decorations
                 _chatWindow.SystemDecorations = _chatWindowViewModel.IgnoreMouseEvents ? SystemDecorations.None : SystemDecorations.Full;
-                _chatWindow.TransparencyLevelHint = _chatWindowViewModel.IgnoreMouseEvents ? [WindowTransparencyLevel.Transparent] : [WindowTransparencyLevel.AcrylicBlur, WindowTransparencyLevel.Blur];
+                _chatWindow.TransparencyLevelHint = _chatWindowViewModel.IgnoreMouseEvents?[WindowTransparencyLevel.Transparent] : [WindowTransparencyLevel.AcrylicBlur, WindowTransparencyLevel.Blur];
             });
         }
     }
@@ -125,7 +127,7 @@ public partial class App : Application
 
     private void AskAI()
     {
-        _chatWindowViewModel?.AskWithImage(_chatWindowViewModel.ImageSource);
+        _chatWindowViewModel?.AskQuestion();
     }
 
     public async Task<Bitmap?> TakeScreenshotAsync()
@@ -140,10 +142,17 @@ public partial class App : Application
 
     public async void TakeScreenshot()
     {
-        if (_chatWindowViewModel != null)
+        try
         {
-            var bitmap = await TakeScreenshotAsync();
-            _chatWindowViewModel.ImageSource = bitmap;
+            if (_chatWindowViewModel != null)
+            {
+                var bitmap = await TakeScreenshotAsync();
+                _chatWindowViewModel.ImageSource = bitmap;
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine($"Failed to take screenshot: {e.Message}");
         }
     }
 
@@ -174,7 +183,7 @@ public partial class App : Application
         using var iconStream = AssetLoader.Open(new Uri("avares://Anu.Core/Assets/AppIcon.ico"));
         using var pubStream = AssetLoader.Open(new Uri("avares://Anu.Core/Assets/app_update.pub"));
         using var reader = new StreamReader(pubStream, Encoding.UTF8);
-		
+
         _sparkle = new CustomSparkleUpdater(url, new Ed25519Checker(SecurityMode.Strict, reader.ReadToEnd()))
         {
             UIFactory = new NetSparkleUpdater.UI.Avalonia.UIFactory(new WindowIcon(iconStream)),
@@ -185,12 +194,19 @@ public partial class App : Application
         _sparkle.AppCastDataDownloader = dler;
         StartSparkle();
     }
-    
+
     private async void StartSparkle()
     {
-        if (_sparkle != null)
+        try
         {
-            await _sparkle.StartLoop(_settingsWindowViewModel?.AutoCheckForUpdates ?? true);
+            if (_sparkle != null)
+            {
+                await _sparkle.StartLoop(_settingsWindowViewModel?.AutoCheckForUpdates ?? true);
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine($"Failed to start sparkle: {e.Message}");
         }
     }
 
@@ -202,13 +218,8 @@ public partial class App : Application
         }
         ForceActivateChatWindow();
     }
-    
-    public void ShowChatWindow()
-    {
-        ShowChatWindow(false);
-    }
-    
-    public void ShowChatWindow(bool forceActivated)
+
+    public void ShowChatWindow(bool forceActivated = false)
     {
         Dispatcher.UIThread.InvokeAsync(() =>
         {
@@ -225,7 +236,7 @@ public partial class App : Application
             _shortcutHintWindow?.Show();
         });
     }
-    
+
     private void InitShortcutHintWindow()
     {
         if (_shortcutHintWindow == null)
@@ -242,7 +253,9 @@ public partial class App : Application
             };
             ConfigureWindowBehaviors(_shortcutHintWindow, new WindowBehaviorOptions
             {
-                ContentProtection = true, OverlayWindow = true, IgnoreMouseEvents = true
+                ContentProtection = true,
+                OverlayWindow = true,
+                IgnoreMouseEvents = true
             });
         }
     }
@@ -264,23 +277,24 @@ public partial class App : Application
                     Background = Brushes.Transparent,
                     ExtendClientAreaToDecorationsHint = true,
                     SystemDecorations = forceActivated ? SystemDecorations.Full : SystemDecorations.None,
-                    TransparencyLevelHint = forceActivated ? [WindowTransparencyLevel.AcrylicBlur, WindowTransparencyLevel.Blur] : [WindowTransparencyLevel.Transparent],
+                    TransparencyLevelHint = forceActivated?[WindowTransparencyLevel.AcrylicBlur, WindowTransparencyLevel.Blur] : [WindowTransparencyLevel.Transparent],
                     DataContext = _chatWindowViewModel
                 };
-                
-                if (_settingsWindowViewModel != null)
-                {
-                    _chatWindowViewModel.IgnoreMouseEvents = _settingsWindowViewModel.ContentProtection;
-                    _chatWindowViewModel.OverlayWindow = false;
-                    _chatWindowViewModel.IgnoreMouseEvents = !forceActivated;
-                }
-                
-                ConfigureWindowBehaviors(_chatWindow, new WindowBehaviorOptions
-                {
-                    ContentProtection = _chatWindowViewModel.ContentProtection,
-                    OverlayWindow = _chatWindowViewModel.OverlayWindow,
-                    IgnoreMouseEvents = _chatWindowViewModel.IgnoreMouseEvents
-                });
+
+            if (_settingsWindowViewModel != null)
+            {
+                _chatWindowViewModel.IgnoreMouseEvents = _settingsWindowViewModel.ContentProtection;
+                _chatWindowViewModel.OverlayWindow = false;
+                _chatWindowViewModel.IgnoreMouseEvents = !forceActivated;
+                _chatWindowViewModel.FirstShowActivated = forceActivated;
+            }
+
+            ConfigureWindowBehaviors(_chatWindow, new WindowBehaviorOptions
+            {
+                ContentProtection = _chatWindowViewModel.ContentProtection,
+                OverlayWindow = _chatWindowViewModel.OverlayWindow,
+                IgnoreMouseEvents = _chatWindowViewModel.IgnoreMouseEvents
+            });
             }
         }
     }
@@ -296,7 +310,7 @@ public partial class App : Application
         ShowChatWindow();
         ShowShortcutHintWindow();
     }
-    
+
     public void HideChatWindow()
     {
         Dispatcher.UIThread.InvokeAsync(() =>
@@ -314,7 +328,7 @@ public partial class App : Application
             _shortcutHintWindow = null;
         });
     }
-    
+
     public void ToggleShowChatWindow()
     {
         if (_chatWindow != null)
@@ -364,6 +378,7 @@ public partial class App : Application
             Dispatcher.UIThread.InvokeAsync(() =>
             {
                 _chatWindow.Activate();
+                _chatWindow.Focus();
             });
         }
     }
@@ -405,13 +420,13 @@ public partial class App : Application
 
         return null;
     }
-    
+
     public void ConfigureWindowBehaviors(Window window, WindowBehaviorOptions options)
-    { 
+    {
         var windowConfigurator = ServiceProviderBuilder.ServiceProvider?.GetService<IWindowConfigurator>();
         windowConfigurator?.ConfigureWindow(window, options);
     }
-    
+
     public void QuitApplication()
     {
         Dispatcher.UIThread.InvokeAsync(() =>

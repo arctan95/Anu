@@ -11,10 +11,10 @@ using SharpHook.Native;
 
 namespace Anu.Core.ViewModels;
 
-public partial class SettingsWindowViewModel: ViewModelBase
+public partial class SettingsWindowViewModel : ViewModelBase
 {
     private readonly ConfigService? _configService;
-    
+
     [ObservableProperty]
     private string? _systemPrompt;
     [ObservableProperty]
@@ -47,7 +47,7 @@ public partial class SettingsWindowViewModel: ViewModelBase
     private bool _startOnBoot;
     [ObservableProperty]
     private string? _language;
-    
+
     // global app settings
     [ObservableProperty]
     private int _screenMaxWidth;
@@ -67,20 +67,20 @@ public partial class SettingsWindowViewModel: ViewModelBase
     private string _version = $"Version {Assembly.GetEntryAssembly()?.GetName().Version}";
     [ObservableProperty]
     private string _copyright = $"Copyright © 2025-{DateTime.Now.Year} arctan95";
-    
+
     partial void OnAutoCheckForUpdatesChanged(bool value) => _configService?.Set("general.auto_check_for_updates", value);
 
     partial void OnStartOnBootChanged(bool value) => _configService?.Set("general.start_on_boot", value);
-    
+
     partial void OnSystemPromptChanged(string? value) => _configService?.Set("ai.default_system_prompt", value);
-    
-    partial void OnUserPromptChanged(string? value) =>  _configService?.Set("ai.default_user_prompt", value);
+
+    partial void OnUserPromptChanged(string? value) => _configService?.Set("ai.default_user_prompt", value);
 
     partial void OnApiKeyChanged(string? value) => _configService?.Set("ai.api_key", value);
     partial void OnEndpointChanged(string? value) => _configService?.Set("ai.endpoint", value);
 
     partial void OnModelChanged(string? value) => _configService?.Set("ai.model", value);
-    
+
     public SettingsWindowViewModel()
     {
         _configService = ServiceProviderBuilder.ServiceProvider?.GetRequiredService<ConfigService>();
@@ -129,6 +129,6 @@ public partial class SettingsWindowViewModel: ViewModelBase
     {
         hotkey.SetFunctionBinding(FunctionRegistry.GetFunction(functionName));
         GlobalHotkeyManager.BindHotkey(functionName, hotkey);
-        _configService?.Set("control." + functionName, new[] {(ushort)hotkey.Modifier, (ushort)hotkey.Key });
+        _configService?.Set("control." + functionName, new[] { (ushort)hotkey.Modifier, (ushort)hotkey.Key });
     }
 }
