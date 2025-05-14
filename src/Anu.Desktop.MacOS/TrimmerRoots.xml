@@ -1,0 +1,7 @@
+<linker>
+    <assembly fullname="Anu.Core">
+        <type fullname="Anu.Core.ViewModels*" preserve="all"/>
+        <type fullname="Anu.Core.Services*" preserve="all"/>
+        <type fullname="Anu.Core.MacOS.Services*" preserve="all"/>
+    </assembly>
+</linker>
