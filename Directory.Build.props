@@ -1,0 +1,10 @@
+<Project>
+    <PropertyGroup>
+        <AssemblyTitle>Anu</AssemblyTitle>
+        <Version>0.1.0</Version>
+        <AssemblyVersion>0.1.0</AssemblyVersion>
+        <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+        <Description>Your always-ready, on-demand AI assistant.</Description>
+        <Copyright>Copyright © 2025 arctan95</Copyright>
+    </PropertyGroup>
+</Project>
