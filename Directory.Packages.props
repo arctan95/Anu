@@ -13,11 +13,13 @@
     <PackageVersion Include="Avalonia.Themes.Fluent" Version="11.2.8" />
     <PackageVersion Include="Clowd.Clipboard.Avalonia" Version="1.1.4" />
     <PackageVersion Include="Markdown.Avalonia" Version="11.0.3-a1" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.4" />
     <PackageVersion Include="Microsoft.Windows.CsWin32" Version="0.3.183">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageVersion>
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.4" />
+    <PackageVersion Include="ModelContextProtocol" Version="0.3.0-preview.3" />
     <PackageVersion Include="NetSparkleUpdater.SparkleUpdater" Version="3.0.2" />
     <PackageVersion Include="NetSparkleUpdater.UI.Avalonia" Version="3.0.2" />
     <PackageVersion Include="OpenAI" Version="2.2.0-beta.4" />

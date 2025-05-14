@@ -1,6 +1,7 @@
 ﻿using System;
 using Avalonia;
 using Anu.Core;
+using Anu.Core.Server;
 using Anu.Core.Services;
 using Anu.Core.ViewModels;
 using Anu.Desktop.Windows.Services;
@@ -20,6 +21,7 @@ class Program
             .AddSingleton<IWindowConfigurator, WindowConfigurator>()
             .AddSingleton<ISystemHotKeyRegister, SystemHotkeyRegister>()
             .AddSingleton<ConfigService>()
+            .AddSingleton<McpServer>()
             .AddSingleton<ChatWindowViewModel>()
             .AddSingleton<SettingsWindowViewModel>()
             .Build();

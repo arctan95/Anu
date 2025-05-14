@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Avalonia;
 using Anu.Core.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,18 +30,23 @@ public class InputListener
     }
     public static void SetupSystemHook()
     {
-        try
+        if (_globalHook != null)
         {
-            _globalHook?.RunAsync();
-            Debug.WriteLine("Hook started.");
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error starting hook: {ex.Message}");
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _globalHook.RunAsync();
+                    Debug.WriteLine("Hook started.");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error starting hook: {ex.Message}");
+                }
+            });
         }
     }
-
-
+    
     private static void OnMouseMoved(object? sender, MouseHookEventArgs e)
     {
         _chatWindowViewModel?.OnMouseMoved(e.Data.X, e.Data.Y);

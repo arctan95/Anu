@@ -1,6 +1,7 @@
 ﻿using Anu.Desktop.MacOS.Services;
 using Avalonia;
 using Anu.Core;
+using Anu.Core.Server;
 using Anu.Core.Services;
 using Anu.Core.ViewModels;
 
@@ -20,6 +21,7 @@ class Program
             .AddSingleton<IWindowConfigurator, WindowConfigurator>()
             .AddSingleton<ISystemHotKeyRegister, SystemHotkeyRegister>()
             .AddSingleton<ConfigService>()
+            .AddSingleton<McpServer>()
             .AddSingleton<ChatWindowViewModel>()
             .AddSingleton<SettingsWindowViewModel>()
             .Build();

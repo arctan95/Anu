@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -24,6 +25,7 @@ using NetSparkleUpdater.Downloaders;
 using NetSparkleUpdater.Enums;
 using NetSparkleUpdater.SignatureVerifiers;
 using SharpHook.Native;
+using Anu.Core.Server;
 
 namespace Anu.Core;
 
@@ -34,6 +36,7 @@ public partial class App : Application
     private ChatWindowViewModel? _chatWindowViewModel;
     private SettingsWindowViewModel? _settingsWindowViewModel;
     private ConfigService? _configService;
+    private McpServer? _mcpServer;
     private Window? _chatWindow;
     private Window? _shortcutHintWindow;
     private SparkleUpdater? _sparkle;
@@ -53,6 +56,7 @@ public partial class App : Application
         _chatWindowViewModel = ServiceProviderBuilder.ServiceProvider?.GetRequiredService<ChatWindowViewModel>();
         _settingsWindowViewModel = ServiceProviderBuilder.ServiceProvider?.GetRequiredService<SettingsWindowViewModel>();
         _configService = ServiceProviderBuilder.ServiceProvider?.GetRequiredService<ConfigService>();
+        _mcpServer =  ServiceProviderBuilder.ServiceProvider?.GetRequiredService<McpServer>();
         DataContext = this;
     }
     
@@ -152,10 +156,49 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             _lifetime = desktop;
+            _lifetime.Startup += StartMcpServer;
+            _lifetime.Exit += StopMcpServer;
             desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private void  StartMcpServer(object? sender, ControlledApplicationLifetimeStartupEventArgs controlledApplicationLifetimeStartupEventArgs)
+    {
+        if (_mcpServer != null)
+        {
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _mcpServer.StartAsync();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Failed to start mcp server: {ex.Message}");
+                }
+            });
+        }
+    }
+    
+    private void StopMcpServer(object? sender,
+        ControlledApplicationLifetimeExitEventArgs controlledApplicationLifetimeExitEventArgs)
+    {
+        if (_mcpServer != null)
+        {
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _mcpServer.StopAsync();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Failed to stop mcp server: {ex.Message}");
+                }
+            });
+        }
     }
 
     private async Task CheckUpdates()
@@ -188,9 +231,16 @@ public partial class App : Application
     
     private async void StartSparkle()
     {
-        if (_sparkle != null)
+        try
         {
-            await _sparkle.StartLoop(_settingsWindowViewModel?.AutoCheckForUpdates ?? true);
+            if (_sparkle != null)
+            {
+                await _sparkle.StartLoop(_settingsWindowViewModel?.AutoCheckForUpdates ?? true);
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine($"Failed to start sparkle: {e.Message}");
         }
     }
 

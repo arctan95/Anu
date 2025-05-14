@@ -13,6 +13,8 @@
     <PackageReference Include="Avalonia.Themes.Fluent" />
     <PackageReference Include="Markdown.Avalonia" />
     <PackageReference Include="Clowd.Clipboard.Avalonia" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="ModelContextProtocol" />
     <PackageReference Include="NetSparkleUpdater.SparkleUpdater" />
     <PackageReference Include="NetSparkleUpdater.UI.Avalonia" />
     <PackageReference Include="OpenAI" />
