@@ -9,7 +9,7 @@ namespace Anu.Core.Views;
 public partial class ChatWindow : Window
 {
     public ChatWindow()
-    { 
+    {
         InitializeComponent();
         Activated += OnActivated;
         Deactivated += OnDeActivated;
@@ -38,7 +38,7 @@ public partial class ChatWindow : Window
             vm.ChatBoxWidth = e.ClientSize.Width;
         }
     }
-    
+
     private void OnDeActivated(object? sender, EventArgs e)
     {
         if (DataContext is ChatWindowViewModel vm)
@@ -57,13 +57,19 @@ public partial class ChatWindow : Window
     {
         UserPrompt.Focus();
     }
-    
+
     private void DetectScreenSize()
     {
-        if (DataContext is ChatWindowViewModel viewModel)
+        var screen = Screens.Primary;
+        if (screen != null)
         {
-            viewModel.WindowPositionX = Position.X;
-            viewModel.WindowPositionY = Position.Y;
+            if (DataContext is ChatWindowViewModel viewModel)
+            {
+                viewModel.WindowPositionX = Position.X;
+                viewModel.WindowPositionY = Position.Y;
+                viewModel.ScreenWidth = screen.Bounds.Width;
+                viewModel.ScreenHeight = screen.Bounds.Height;
+            }
         }
     }
 

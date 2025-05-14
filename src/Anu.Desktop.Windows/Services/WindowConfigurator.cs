@@ -7,12 +7,12 @@ using Anu.Core.Services;
 
 namespace Anu.Desktop.Windows.Services;
 
-public class WindowConfigurator: IWindowConfigurator
+public class WindowConfigurator : IWindowConfigurator
 {
     private const int WS_EX_LAYERED = 0x00080000;
     private const int WS_EX_TRANSPARENT = 0x00000020;
     private const int HWND_TOPMOST = -1;
-    
+
     private static COLORREF ToColorRef(Color color)
     {
         return (COLORREF)(uint)(color.R | (color.G << 8) | (color.B << 16));
@@ -31,7 +31,7 @@ public class WindowConfigurator: IWindowConfigurator
             style &= ~WS_EX_TRANSPARENT;
             PInvoke.SetWindowLong((HWND)handle, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, style);
         }
-        
+
     }
 
     public void SetOverlayWindow(IntPtr handle, bool overlay)

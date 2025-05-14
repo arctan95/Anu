@@ -12,7 +12,7 @@ namespace Anu.Core.Services;
 /// </summary>
 public static class GlobalHotkeyManager
 {
-    
+
     // Events
     public delegate void HotkeyEvent(GlobalHotkey hotkey);
 
@@ -88,7 +88,7 @@ public static class GlobalHotkeyManager
             }
         }
     }
-    
+
 
     /// <summary>
     /// Creates and adds a new hotkey to the hotkeys list.
@@ -102,5 +102,5 @@ public static class GlobalHotkeyManager
     {
         BindHotkey(functionName, new GlobalHotkey(modifier, key, callback, canExecute));
     }
-    
+
 }

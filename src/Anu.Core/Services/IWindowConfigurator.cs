@@ -15,7 +15,7 @@ public interface IWindowConfigurator
             SetContentProtection(handle, windowBehaviorOptions.ContentProtection);
         }
     }
-    
+
     public void SetIgnoresMouseEvents(IntPtr window, bool ignoreMouseEvents);
     public void SetOverlayWindow(IntPtr window, bool overlay);
     public void SetContentProtection(IntPtr window, bool contentProtection);

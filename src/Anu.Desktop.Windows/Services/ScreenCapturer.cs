@@ -12,7 +12,7 @@ namespace Anu.Desktop.Windows.Services;
 
 public class ScreenCapturer : IScreenCapturer
 {
-    public Task<Bitmap?>  CaptureScreen(int width, int height)
+    public Task<Bitmap?> CaptureScreen(int width, int height)
     {
         var tcs = new TaskCompletionSource<Bitmap?>();
         using var bmp = new SysBitmap(width, height);

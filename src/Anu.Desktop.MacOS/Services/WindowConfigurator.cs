@@ -3,7 +3,7 @@ using ObjCRuntime;
 
 namespace Anu.Desktop.MacOS.Services;
 
-public class WindowConfigurator: IWindowConfigurator
+public class WindowConfigurator : IWindowConfigurator
 {
 
     public void SetIgnoresMouseEvents(IntPtr handle, bool ignoreMouseEvents)

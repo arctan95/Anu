@@ -151,7 +151,7 @@ public class KeyCodeMap
         [KeyCode.VcBrowserRefresh] = Key.BrowserRefresh,
         [KeyCode.VcBrowserFavorites] = Key.BrowserFavorites
     };
-    
+
     // currently not in use
     // public static readonly Dictionary<Key, KeyCode> MapReverse = Reverse(Map);
 
