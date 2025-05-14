@@ -20,7 +20,7 @@ public partial class ShortcutHintWindow : Window
             Position = new PixelPoint(10, screen.Bounds.Y + screen.Bounds.Bottom - (int)Height - 10);
         }
     }
-    
+
     protected override void OnOpened(EventArgs e)
     {
         PositionWindowAtLeftBottom();

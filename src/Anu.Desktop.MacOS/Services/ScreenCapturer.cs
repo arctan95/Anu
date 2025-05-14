@@ -7,7 +7,7 @@ using ScreenCaptureKit;
 
 namespace Anu.Desktop.MacOS.Services;
 
-public class ScreenCapturer: IScreenCapturer
+public class ScreenCapturer : IScreenCapturer
 {
     [SupportedOSPlatform("macos14.4")]
     public Task<Bitmap?> CaptureScreen(int width, int height)
@@ -24,12 +24,13 @@ public class ScreenCapturer: IScreenCapturer
                 }
 
                 SCDisplay display = content.Displays.First();
-            
-                if (display == null) {
+
+                if (display == null)
+                {
                     Console.WriteLine("No display found.");
                     return;
                 }
-            
+
                 SCContentFilter filter = new SCContentFilter(display, [], SCContentFilterOption.Exclude);
                 SCStreamConfiguration config = new SCStreamConfiguration();
                 config.CapturesAudio = false;
@@ -39,8 +40,8 @@ public class ScreenCapturer: IScreenCapturer
                 config.CaptureResolution = SCCaptureResolutionType.Best;
                 config.Width = (UIntPtr)width;
                 config.Height = (UIntPtr)height;
-            
-            
+
+
                 SCScreenshotManager.CaptureImage(filter, config, (image, error) =>
                 {
                     if (error != null)
@@ -52,7 +53,7 @@ public class ScreenCapturer: IScreenCapturer
                     {
                         Console.WriteLine("No image captured.");
                     }
-                    
+
                     tcs.SetResult(CGImageToBitmap(image));
                 });
             });
@@ -62,7 +63,7 @@ public class ScreenCapturer: IScreenCapturer
             CGImage? image = CGImage.ScreenImage(0, new CGRect(0, 0, width, height), CGWindowListOption.All, CGWindowImageOption.BestResolution);
             tcs.SetResult(CGImageToBitmap(image));
         }
-        
+
         return tcs.Task;
     }
 
@@ -76,7 +77,7 @@ public class ScreenCapturer: IScreenCapturer
                 Console.WriteLine("No image captured.");
                 return null;
             }
-            
+
             int width = (int)cgImage.Width;
             int height = (int)cgImage.Height;
             int stride = (int)cgImage.BytesPerRow;
@@ -98,7 +99,7 @@ public class ScreenCapturer: IScreenCapturer
                 dataPtr,              // Raw pixel data
                 new PixelSize(width, height), // Image size
                 dpi,                  // DPI
-                stride 
+                stride
             );
 
             return bitmap;

@@ -12,9 +12,9 @@ using Anu.Core.ViewModels;
 
 namespace Anu.Core.Views;
 
-public partial class SettingsWindow: Window
+public partial class SettingsWindow : Window
 {
-    
+
     private readonly Key[] _modifierKeys =  [
         Key.LeftShift,
         Key.RightShift,
@@ -25,7 +25,7 @@ public partial class SettingsWindow: Window
         Key.LWin,
         Key.RWin,
     ];
-    
+
     public SettingsWindow()
     {
         InitializeComponent();
@@ -44,7 +44,7 @@ public partial class SettingsWindow: Window
                 {
                     var key = KeyConvertor.ToKey(hotkey.Key);
                     var modifiers = KeyConvertor.ToKeyModifiers(hotkey.Modifier);
-                    if ( key != Key.None && modifiers != KeyModifiers.None)
+                    if (key != Key.None && modifiers != KeyModifiers.None)
                     {
                         viewModel.RecordHotKey(functionName, hotkey);
                         Dispatcher.UIThread.InvokeAsync(() => textBox.Text = PlatformKeyGestureConverter.ToPlatformString(new KeyGesture(key, modifiers)));
@@ -53,7 +53,7 @@ public partial class SettingsWindow: Window
             }
         }
     }
-    
+
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
         if (sender is TextBox textBox)
@@ -65,7 +65,7 @@ public partial class SettingsWindow: Window
         }
         e.Handled = true;
     }
-    
+
     public void OnTextBoxLostFocus(object? sender, RoutedEventArgs e)
     {
         if (sender is TextBox textBox)
