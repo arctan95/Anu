@@ -1,0 +1,55 @@
+name: win-release
+
+on:
+  push:
+    tags:
+      - 'v*'
+        
+jobs:
+  win-release:
+    if : ${{ startsWith(github.ref, 'refs/tags/') }}
+    strategy:
+      matrix:
+        cpu: [x64, arm64]
+    
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            9.0.x
+
+      - name: Install dotnet workload and dependencies
+        working-directory: ./src/Anu.Desktop.Windows
+        run: |
+          dotnet workload restore
+          dotnet restore
+      - name: Build ${{ matrix.cpu }}
+        run: |
+          dotnet publish Anu.Desktop.Windows.csproj -r win-${{ matrix.cpu }} -c Release /p:DebugType=None /p:DebugSymbols=false
+        working-directory: ./src/Anu.Desktop.Windows
+
+      - name: Get Tag Name
+        shell: bash
+        run: |
+          echo "TAG_NAME=${GITHUB_REF#refs/*/v}" >> $GITHUB_ENV
+
+      - name: Package Installer
+        uses: nadeemjazmawe/inno-setup-action-cli@v6.0.5
+        with:
+          filepath: ./src/Anu.Desktop.Windows/setup-${{ matrix.cpu }}.iss
+
+      - name: Change name
+        run: mv AnuSetup.exe "Anu-${{ env.TAG_NAME }}-windows-${{ matrix.cpu }}.exe"
+        working-directory: ./src/Anu.Desktop.Windows/bin/Release/net9.0-windows/win-${{ matrix.cpu }}/publish
+
+      - name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          prerelease: ${{ contains(github.ref_name, 'beta') }}
+          artifacts: ./src/Anu.Desktop.Windows/bin/Release/net9.0-windows/win-${{ matrix.cpu }}/publish/Anu-${{ env.TAG_NAME }}-windows-${{ matrix.cpu }}.exe

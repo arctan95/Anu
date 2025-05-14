@@ -1,0 +1,28 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:Anu.Core"
+             x:Class="Anu.Core.App"
+             x:DataType="local:App"
+             RequestedThemeVariant="Default">
+             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+
+    <Application.Styles>
+        <FluentTheme DensityStyle="Compact"/>
+    </Application.Styles>
+     <TrayIcon.Icons>
+         <TrayIcons>
+             <TrayIcon Icon="/Assets/Icon.ico" ToolTipText="Anu">
+                 <TrayIcon.Menu>
+                     <NativeMenu>
+                         <NativeMenuItem Header="_Open Anu" Command="{Binding MainCommand}" />
+                         <NativeMenuItemSeparator />
+                         <NativeMenuItem Header="_Settings..." Command="{Binding SettingsCommand}" />
+                         <NativeMenuItem Header="_Check for updates..." Command="{Binding CheckUpdatesCommand}" />
+                         <NativeMenuItemSeparator />
+                         <NativeMenuItem Header="_Quit" Command="{Binding QuitCommand}" />
+                     </NativeMenu>
+                 </TrayIcon.Menu>
+             </TrayIcon>
+         </TrayIcons>
+     </TrayIcon.Icons>
+</Application>

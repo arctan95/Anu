@@ -1,0 +1,6 @@
+GetWindowLong
+SetWindowLong
+SetWindowDisplayAffinity
+SetLayeredWindowAttributes
+SetWindowPos
+GetWindowRect
