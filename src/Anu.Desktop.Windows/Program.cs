@@ -4,7 +4,6 @@ using Anu.Core;
 using Anu.Core.Services;
 using Anu.Core.ViewModels;
 using Anu.Desktop.Windows.Services;
-
 namespace Anu.Desktop.Windows;
 
 class Program
@@ -23,7 +22,7 @@ class Program
             .AddSingleton<ChatWindowViewModel>()
             .AddSingleton<SettingsWindowViewModel>()
             .Build();
-        
+
         BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);
     }

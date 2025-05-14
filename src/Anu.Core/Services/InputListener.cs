@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Avalonia;
 using Anu.Core.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +17,7 @@ public class InputListener
     private static DateTime _lastShiftTime = DateTime.MinValue;
     private static DateTime _lastCtrlTime = DateTime.MinValue;
     private const int DoubleTapThresholdMs = 300;
-    
+
     static InputListener()
     {
         _globalHook = new TaskPoolGlobalHook(1, GlobalHookType.All, null, true);
@@ -29,17 +30,22 @@ public class InputListener
     }
     public static void SetupSystemHook()
     {
-        try
+        if (_globalHook != null)
         {
-            _globalHook?.RunAsync();
-            Debug.WriteLine("Hook started.");
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error starting hook: {ex.Message}");
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _globalHook.RunAsync();
+                    Debug.WriteLine("Hook started.");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error starting hook: {ex.Message}");
+                }
+            });
         }
     }
-
 
     private static void OnMouseMoved(object? sender, MouseHookEventArgs e)
     {
@@ -52,14 +58,14 @@ public class InputListener
         {
             var now = DateTime.Now;
             var timeDelta = now - _lastAltTime;
-            
+
             if (timeDelta.TotalMilliseconds < DoubleTapThresholdMs)
             {
                 _chatWindowViewModel?.ToggleFollowPointer();
             }
             _lastAltTime = now;
         }
-        
+
         if (e.RawEvent.Mask.HasFlag(ModifierMask.LeftCtrl) && e.RawEvent.Mask.HasFlag(ModifierMask.LeftAlt))
         {
             double delta = 25;
@@ -74,7 +80,7 @@ public class InputListener
 
             ScrollMarkdown(offset);
         }
-        
+
         if (e.Data.KeyCode is KeyCode.VcLeftControl or KeyCode.VcRightControl)
         {
             var now = DateTime.Now;
@@ -94,7 +100,7 @@ public class InputListener
         {
             var now = DateTime.Now;
             var timeDelta = now - _lastShiftTime;
-            
+
             if (timeDelta.TotalMilliseconds < DoubleTapThresholdMs)
             {
                 if (Application.Current is App app)
@@ -105,12 +111,12 @@ public class InputListener
             _lastShiftTime = now;
         }
     }
-    
-    
+
+
     static void ScrollMarkdown(Vector offset)
     {
         _chatWindowViewModel?.ScrollMarkdown(offset);
     }
 
-    
+
 }
