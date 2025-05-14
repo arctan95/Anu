@@ -1,0 +1,22 @@
+{
+	"general": {
+		"language": "English",
+		"start_on_boot": true,
+		"auto_check_for_updates": true
+	},
+	"ai": {
+		"endpoint": "",
+		"model": "",
+		"api_key": "",
+		"default_user_prompt": "",
+		"default_system_prompt": ""
+	},
+	"control": {
+		"open_chat_window": [1, 119],
+		"take_screenshot": [1, 120],
+		"ask_ai": [3, 10],
+		"start_over": [1, 121],
+		"quit_app": [1, 27],
+		"click_through": [1, 122]
+	}
+}
