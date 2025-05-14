@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+  <channel>
+    <title>Anu</title>
+    <description>Most recent changes with links to updates</description>
+    <language>en</language>
+    <item>
+      <title>Anu 0.1.0</title>
+      <sparkle:releaseNotesLink sparkle:signature="oZfnMx8oZ27y+Piqqgv2TXexUNgrK+/EyQCRc0KjR/F9ycDJoT2t+tpIyVapRrMWPNSyQiqO+5/pjCoei1e6BQ==">https://desktoys.github.io/Anu/changelogs/0.1.1.md</sparkle:releaseNotesLink>
+      <pubDate>Sat, 24 May 2025 00:03:08 +08:00</pubDate>
+      <sparkle:version>0.1.1</sparkle:version>
+      <sparkle:shortVersionString>0.1.1</sparkle:shortVersionString>
+      <enclosure url="https://github.com/arctan95/Anu/releases/download/v0.1.1/Anu-0.1.1-windows-x64.exe" sparkle:version="0.1.1" sparkle:shortVersionString="0.1.1" length="14468789" sparkle:os="windows-x64" type="application/x-msdos-program" sparkle:criticalUpdate="false" sparkle:signature="kRqba72SLgyfQjyDXm9ovstxuhMMa17wUZK05Fas0EXke2gHX+gzJgqaqFtfqCYB/YJN9mfYzj1aNj992VH2Cg==" />
+    </item>
+  </channel>
+</rss>
