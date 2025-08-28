@@ -25,6 +25,7 @@ public class AIChat
     private static SettingsWindowViewModel? _settingsViewModel;
     private static ChatClient? _chatClient;
     private static readonly Dictionary<string, CancellationTokenSource> Cancellations = new();
+    private static readonly List<ChatMessage> _messages = new();
     private static bool _initialized;
 
     public class StreamingChatToolCallsBuilder
@@ -251,7 +252,13 @@ public class AIChat
             _chatWindowViewModel.UpdateText(Environment.NewLine + Environment.NewLine);
             _chatWindowViewModel.UpdateText($"[AI]:");
             
-            List<ChatMessage> messages = [systemMessage, userMessage];
+            // Only add system message in first time
+            if (_messages.Count == 0)
+            {
+                _messages.Add(systemMessage);
+            }
+            
+            _messages.Add(userMessage);
 
             try
             {
@@ -270,10 +277,9 @@ public class AIChat
                     Cancellations.Add(requestId, cts);
                     _chatWindowViewModel.LastRequestId = requestId;
                     _chatWindowViewModel.MessageRequested = true;
-                    UpdateUserMessageWithImage(userMessage);
 
                     AsyncCollectionResult<StreamingChatCompletionUpdate>? completionUpdates =
-                        _chatClient?.CompleteChatStreamingAsync(messages, options, cancelToken);
+                        _chatClient?.CompleteChatStreamingAsync(_messages, options, cancelToken);
 
                     if (completionUpdates != null)
                     {
@@ -300,7 +306,7 @@ public class AIChat
                                 case ChatFinishReason.Stop:
                                     {
                                         // Add the assistant message to the conversation history.
-                                        messages.Add(new AssistantChatMessage(contentBuilder.ToString()));
+                                        _messages.Add(new AssistantChatMessage(contentBuilder.ToString()));
                                         _chatWindowViewModel.MessageRequested = false;
                                         Cancellations.Remove(requestId);
                                         break;
@@ -317,7 +323,7 @@ public class AIChat
                                         {
                                             assistantMessage.Content.Add(ChatMessageContentPart.CreateTextPart(contentBuilder.ToString()));
                                         }
-                                        messages.Add(assistantMessage);
+                                        _messages.Add(assistantMessage);
                                         
                                         // Force close allow operations on screen
                                         if (Application.Current is App application && !_chatWindowViewModel.IgnoreMouseEvents)
@@ -334,21 +340,21 @@ public class AIChat
                                                 case nameof(InputTools.GetScreenSize):
                                                     {
                                                         string size = InputTools.GetScreenSize();
-                                                        messages.Add(new ToolChatMessage(toolCall.Id, size));
+                                                        _messages.Add(new ToolChatMessage(toolCall.Id, size));
                                                         break;
                                                     }
 
                                                 case nameof(InputTools.GetCurrentCursorPosition):
                                                     {
                                                         string position = InputTools.GetCurrentCursorPosition();
-                                                        messages.Add(new ToolChatMessage(toolCall.Id, position));
+                                                        _messages.Add(new ToolChatMessage(toolCall.Id, position));
                                                         break;
                                                     }
 
                                                 case nameof(InputTools.GetAllKeyNames):
                                                     {
                                                         string allKeys = InputTools.GetAllKeyNames();
-                                                        messages.Add(new ToolChatMessage(toolCall.Id, allKeys));
+                                                        _messages.Add(new ToolChatMessage(toolCall.Id, allKeys));
                                                         break;
                                                     }
 
@@ -358,7 +364,7 @@ public class AIChat
                                                         if (argumentsJson.RootElement.TryGetProperty("text", out JsonElement text))
                                                         {
                                                             string result = InputTools.InputText(text.GetString());
-                                                            messages.Add(new ToolChatMessage(toolCall.Id, result));
+                                                            _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         }
                                                         break;
                                                     }
@@ -371,7 +377,7 @@ public class AIChat
                                                             Enum.TryParse<KeyCode>(key.GetString(), out var keyEnum))
                                                         {
                                                             string result = InputTools.PressKey(keyEnum);
-                                                            messages.Add(new ToolChatMessage(toolCall.Id, result));
+                                                            _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         }
                                                         break;
                                                     }
@@ -386,11 +392,11 @@ public class AIChat
                                                             Enum.TryParse<KeyCode>(keyElement.GetString(), out var keyEnum))
                                                         {
                                                             string result = InputTools.PressKeyCombination(modifierEnum, keyEnum);
-                                                            messages.Add(new ToolChatMessage(toolCall.Id, result));
+                                                            _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         }
                                                         else
                                                         {
-                                                            messages.Add(new ToolChatMessage(toolCall.Id, "Invalid key combination"));
+                                                            _messages.Add(new ToolChatMessage(toolCall.Id, "Invalid key combination"));
                                                         }
                                                         break;
                                                     }
@@ -399,35 +405,35 @@ public class AIChat
                                                 case nameof(InputTools.LeftClick):
                                                     {
                                                         string result = InputTools.LeftClick();
-                                                        messages.Add(new ToolChatMessage(toolCall.Id, result));
+                                                        _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         break;
                                                     }
 
                                                 case nameof(InputTools.RightClick):
                                                     {
                                                         string result = InputTools.RightClick();
-                                                        messages.Add(new ToolChatMessage(toolCall.Id, result));
+                                                        _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         break;
                                                     }
 
                                                 case nameof(InputTools.MiddleClick):
                                                     {
                                                         string result = InputTools.MiddleClick();
-                                                        messages.Add(new ToolChatMessage(toolCall.Id, result));
+                                                        _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         break;
                                                     }
 
                                                 case nameof(InputTools.DoubleClick):
                                                     {
                                                         string result = InputTools.DoubleClick();
-                                                        messages.Add(new ToolChatMessage(toolCall.Id, result));
+                                                        _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         break;
                                                     }
 
                                                 case nameof(InputTools.TripleClick):
                                                     {
                                                         string result = InputTools.TripleClick();
-                                                        messages.Add(new ToolChatMessage(toolCall.Id, result));
+                                                        _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         break;
                                                     }
 
@@ -440,7 +446,7 @@ public class AIChat
                                                                 out JsonElement y))
                                                         {
                                                             string result = InputTools.ClickAt(x.GetInt16(), y.GetInt16());
-                                                            messages.Add(new ToolChatMessage(toolCall.Id, result));
+                                                            _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         }
                                                         break;
                                                     }
@@ -457,7 +463,7 @@ public class AIChat
                                                                 startX.GetInt16(), startY.GetInt16(),
                                                                 endX.GetInt16(), endY.GetInt16()
                                                             );
-                                                            messages.Add(new ToolChatMessage(toolCall.Id, result));
+                                                            _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         }
                                                         break;
                                                     }
@@ -469,7 +475,7 @@ public class AIChat
                                                             argumentsJson.RootElement.TryGetProperty("y", out JsonElement y))
                                                         {
                                                             string result = InputTools.MoveMouse(x.GetInt16(), y.GetInt16());
-                                                            messages.Add(new ToolChatMessage(toolCall.Id, result));
+                                                            _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         }
                                                         break;
                                                     }
@@ -481,7 +487,7 @@ public class AIChat
                                                             argumentsJson.RootElement.TryGetProperty("dy", out JsonElement dy))
                                                         {
                                                             string result = InputTools.MoveMouseRelative(dx.GetInt16(), dy.GetInt16());
-                                                            messages.Add(new ToolChatMessage(toolCall.Id, result));
+                                                            _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         }
                                                         break;
                                                     }
@@ -494,7 +500,7 @@ public class AIChat
                                                             Enum.TryParse<MouseWheelScrollDirection>(direction.GetString(), out var directionEnum))
                                                         {
                                                             string result = InputTools.WheelMouse(rotation.GetInt16(), directionEnum);
-                                                            messages.Add(new ToolChatMessage(toolCall.Id, result));
+                                                            _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         }
                                                         break;
                                                     }
@@ -502,7 +508,11 @@ public class AIChat
                                                 case nameof(InputTools.TakeScreenshot):
                                                     {
                                                         string result = await InputTools.TakeScreenshot();
-                                                        messages.Add(new ToolChatMessage(toolCall.Id, result));
+                                                        _messages.Add(new ToolChatMessage(toolCall.Id, result));
+                                                        if (_chatWindowViewModel.ImageSource != null)
+                                                        {
+                                                            _messages.Add(new UserChatMessage(CreateImagePart(_chatWindowViewModel.ImageSource)));
+                                                        }
                                                         break;
                                                     }
 
@@ -541,16 +551,7 @@ public class AIChat
             _chatWindowViewModel.ImageSource = null;
     }
 
-    private static void UpdateUserMessageWithImage(UserChatMessage userMessage)
-    {
-        if (_chatWindowViewModel?.ImageSource != null)
-        {
-            var imageData = ToBinaryData(_chatWindowViewModel.ImageSource);
-            userMessage.Content.Add(ChatMessageContentPart.CreateImagePart(imageData, "image/png"));
-        }
-    }
-
-    public static async Task Ask()
+    public static async Task Ask(bool enableConversationMemory = false)
     {
         if (!_initialized && !TryInitialize())
         {
@@ -566,21 +567,39 @@ public class AIChat
         if (string.IsNullOrWhiteSpace(userPrompt) && _chatWindowViewModel?.ImageSource == null)
         {
             Console.WriteLine("Both question and image are null. Nothing to send.");
+            return;
         }
-
-        var userMessage = new UserChatMessage();
-        var userParts = userMessage.Content;
+        
+        var userParts = new List<ChatMessageContentPart>();
 
         if (!string.IsNullOrWhiteSpace(userPrompt))
         {
             userParts.Add(ChatMessageContentPart.CreateTextPart(userPrompt));
         }
 
-        UpdateUserMessageWithImage(userMessage);
-        
+        if (_chatWindowViewModel?.ImageSource != null)
+        {
+            userParts.Add(CreateImagePart(_chatWindowViewModel.ImageSource));
+        }
+        var userMessage = new UserChatMessage(userParts.ToArray());
+
+        if (!enableConversationMemory)
+        {
+            ResetConversation();
+        }
         await Ask(systemMessage, userMessage);
     }
+    
+    public static void ResetConversation()
+    {
+        _messages.Clear();
+    }
 
+    private static ChatMessageContentPart CreateImagePart(Bitmap bitmap)
+    {
+        return ChatMessageContentPart.CreateImagePart(ToBinaryData(bitmap), "image/png");
+    }
+    
     private static BinaryData ToBinaryData(Bitmap bitmap)
     {
         using var stream = new MemoryStream();
