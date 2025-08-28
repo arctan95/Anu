@@ -58,7 +58,7 @@ public class ConfigService
         throw new NotSupportedException($"Type {typeof(T)} is not supported for deserialization.");
 
     }
-    
+
     private static JsonTypeInfo? GetJsonTypeInfo(Type type)
     {
         if (type == typeof(string)) return JsonContext.Default.String;
