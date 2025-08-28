@@ -1,0 +1,34 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:viewModels="clr-namespace:Anu.Core.ViewModels"
+             xmlns:dataTemplates="clr-namespace:Anu.Core.DataTemplates"
+             xmlns:models="clr-namespace:Anu.Core.Models"
+             x:Class="Anu.Core.Views.Chat.Messages.UserMessageView"
+             x:DataType="viewModels:ChatMessageViewModel">
+    <ItemsControl ItemsSource="{Binding MessageContent}">
+        <ItemsControl.ItemTemplate>
+            <dataTemplates:KindBasedDataTemplateSelector>
+                <DataTemplate x:Key='Image'
+                              DataType="{x:Type models:MessageContentPart}">
+                    <Image Source="{Binding Image}"
+                           MaxHeight="150"
+                           Stretch="Uniform"
+                           HorizontalAlignment="Right" />
+                </DataTemplate>
+                <DataTemplate x:Key='Text' DataType="{x:Type models:MessageContentPart}">
+                    <Border
+                        Padding="10"
+                        CornerRadius="12"
+                        HorizontalAlignment="Right"
+                        Margin="12"
+                        Background="{DynamicResource UserPrompt.BackgroundBrush}">
+                        <SelectableTextBlock
+                            Text="{Binding Text}"
+                            TextWrapping="Wrap"
+                            Foreground="{DynamicResource UserPrompt.ForegroundBrush}" />
+                    </Border>
+                </DataTemplate>
+            </dataTemplates:KindBasedDataTemplateSelector>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
+</UserControl>

@@ -1,4 +1,5 @@
 using System;
+using SharpHook;
 using SharpHook.Native;
 
 namespace Anu.Core.Models;
@@ -10,6 +11,8 @@ namespace Anu.Core.Models;
 /// </summary>
 public class GlobalHotkey
 {
+    private const int DoubleTapThresholdMs = 300;
+
     /// <summary>
     /// The modifier key required to be pressed for the hotkey to be 
     /// </summary>
@@ -32,6 +35,10 @@ public class GlobalHotkey
     /// </summary>
     public bool CanExecute { get; set; }
 
+    public bool DetectDoubleTap { get; set; }
+
+    private DateTime _lastTriggerTime;
+
     /// <summary>
     /// Initiates a new hotkey with the given modifier, key, callback method, 
     /// and also a boolean stating if the callback can be run (can be changed, see <see cref="CanExecute"/>)
@@ -43,12 +50,15 @@ public class GlobalHotkey
     /// States whether the callback can be run 
     /// (can be changed, see <see cref="CanExecute"/>)
     /// </param>
-    public GlobalHotkey(ModifierMask modifier, KeyCode key, Action? callbackMethod, bool canExecute = true)
+    /// <param name="detectDoubleTap">Whether detect double tap</param>
+    public GlobalHotkey(ModifierMask modifier, KeyCode key, Action? callbackMethod, bool detectDoubleTap,
+        bool canExecute)
     {
         Modifier = modifier;
         Key = key;
         Callback = callbackMethod;
         CanExecute = canExecute;
+        DetectDoubleTap = detectDoubleTap;
     }
 
     public void SetFunctionBinding(Action? callbackMethod)
@@ -61,5 +71,34 @@ public class GlobalHotkey
     {
         Modifier = modifier;
         Key = key;
+    }
+
+    public bool TryInvoke(KeyboardHookEventArgs e)
+    {
+        if (e.RawEvent.Mask.HasFlag(Modifier) && e.Data.KeyCode == Key)
+        {
+            if (CanExecute)
+            {
+                if (DetectDoubleTap)
+                {
+                    var now = DateTime.Now;
+                    var delta = now - _lastTriggerTime;
+                    if (delta.TotalMilliseconds < DoubleTapThresholdMs)
+                    {
+                        Callback?.Invoke();
+                        return true;
+                    }
+
+                    _lastTriggerTime = now;
+                }
+                else
+                {
+                    Callback?.Invoke();
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

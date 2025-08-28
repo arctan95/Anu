@@ -8,146 +8,175 @@
         SizeToContent="Height"
         CanResize="False"
         WindowStartupLocation="CenterScreen">
-    <DockPanel
-        Margin="4">
-        <TabControl>
-            <TabItem Header="General" >
-                <Border
-                    Margin="0 5"
-                    BorderBrush="LightGray"
-                    BorderThickness="1"
-                    Padding="10">
-                    <StackPanel Margin="10 5" HorizontalAlignment="Left" Spacing="5">
-                        <StackPanel Orientation="Horizontal"  Spacing="20">
-                            <TextBlock Margin="0 0 10 0">Language:</TextBlock> 
-                            <ComboBox SelectedIndex="0" MaxDropDownHeight="100">
-                                <ComboBoxItem>English</ComboBoxItem>
-                                <!-- <ComboBoxItem>简体中文</ComboBoxItem> -->
-                            </ComboBox>
+    <Panel>
+        <ExperimentalAcrylicBorder IsHitTestVisible="False">
+            <ExperimentalAcrylicBorder.Material>
+                <ExperimentalAcrylicMaterial
+                    BackgroundSource="Digger"
+                    TintColor="{DynamicResource App.BackgroundColor}"
+                    TintOpacity="1"
+                    MaterialOpacity="0.65" />
+            </ExperimentalAcrylicBorder.Material>
+        </ExperimentalAcrylicBorder>
+        <DockPanel Margin="8">
+            <TabControl Padding="4">
+                <TabItem Header="General">
+                    <Border
+                        BorderBrush="LightGray"
+                        BorderThickness="1"
+                        Margin="0 4 0 0"
+                        Padding="8">
+                        <StackPanel Margin="10 5" HorizontalAlignment="Left" Spacing="5">
+                            <StackPanel Orientation="Horizontal" Spacing="20">
+                                <TextBlock Margin="0 0 10 0">Language:</TextBlock>
+                                <ComboBox SelectedIndex="0" MaxDropDownHeight="100">
+                                    <ComboBoxItem>English</ComboBoxItem>
+                                </ComboBox>
+                            </StackPanel>
+                            <CheckBox IsChecked="{Binding StartOnBoot}">Run on system startup</CheckBox>
+                            <CheckBox IsChecked="{Binding AutoCheckForUpdates}">Automatically check for updates</CheckBox>
                         </StackPanel>
-                        <CheckBox IsChecked="{Binding StartOnBoot}">Run on system startup</CheckBox>
-                        <CheckBox IsChecked="{Binding AutoCheckForUpdates}">Automatically check for updates</CheckBox>
-                    </StackPanel>
                     </Border>
-            </TabItem>
-            <TabItem Header="AI" >
-                <Border
-                    Margin="0 5"
-                    BorderBrush="LightGray"
-                    BorderThickness="1"
-                    Padding="10"
-                    >
-                        <Grid  ColumnDefinitions="Auto, *"  RowDefinitions="Auto,Auto,Auto,Auto,Auto">
-                            <TextBlock Grid.Row="0" Grid.Column="0" Margin="10 5">Endpoint:</TextBlock> 
-                            <TextBox Grid.Row="0" Grid.Column="1" Margin="10 5" Width="300" Text="{Binding Endpoint}"/>
+                </TabItem>
+                <TabItem Header="AI">
+                    <Border
+                        BorderBrush="LightGray"
+                        BorderThickness="1"
+                        Margin="0 4 0 0"
+                        Padding="8">
+                        <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Margin="10 5">Endpoint:</TextBlock>
+                            <TextBox Grid.Row="0" Grid.Column="1" Margin="10 5" HorizontalAlignment="Stretch"
+                                     Text="{Binding Endpoint}" />
 
-                            <TextBlock Grid.Row="1" Grid.Column="0" Margin="10 5">API key:</TextBlock> 
-                            <TextBox Grid.Row="1" Grid.Column="1" Margin="10 5" Width="300" Text="{Binding ApiKey}"/>
-                            
-                            <TextBlock Grid.Row="2" Grid.Column="0" Margin="10 5">Model:</TextBlock> 
-                            <TextBox Grid.Row="2" Grid.Column="1" Margin="10 5" Width="300" Text="{Binding Model}"/>
-                            
-                            <TextBlock Grid.Row="3" Grid.Column="0" Margin="10 5">Default user prompt:</TextBlock> 
-                            <TextBox Grid.Row="3" Grid.Column="1" Margin="10 5" Width="300" Watermark="Write your prompt here..." Text="{Binding UserPrompt}" Height="100" AcceptsReturn="True" TextWrapping="Wrap"/>
-                            
-                            <TextBlock Grid.Row="4" Grid.Column="0" Margin="10 5">Default system prompt:</TextBlock> 
-                            <TextBox Grid.Row="4" Grid.Column="1" Margin="10 5" Width="300" Watermark="Write your prompt here..." Text="{Binding SystemPrompt}" Height="100" AcceptsReturn="True" TextWrapping="Wrap"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Margin="10 5">API key:</TextBlock>
+                            <TextBox Grid.Row="1" Grid.Column="1" Margin="10 5" HorizontalAlignment="Stretch"
+                                     Text="{Binding ApiKey}" />
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Margin="10 5">Model:</TextBlock>
+                            <TextBox Grid.Row="2" Grid.Column="1" Margin="10 5" HorizontalAlignment="Stretch"
+                                     Text="{Binding Model}" />
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Margin="10 5">Default user prompt:</TextBlock>
+                            <TextBox Grid.Row="3" Grid.Column="1" Margin="10 5" HorizontalAlignment="Stretch"
+                                     Watermark="Write your prompt here..." Text="{Binding UserPrompt}" Height="100"
+                                     AcceptsReturn="True" TextWrapping="Wrap" />
+
+                            <TextBlock Grid.Row="4" Grid.Column="0" Margin="10 5">Default system prompt:</TextBlock>
+                            <TextBox Grid.Row="4" Grid.Column="1" Margin="10 5" HorizontalAlignment="Stretch"
+                                     Watermark="Write your prompt here..." Text="{Binding SystemPrompt}" Height="100"
+                                     AcceptsReturn="True" TextWrapping="Wrap" />
                         </Grid>
                     </Border>
-            </TabItem>
-            <TabItem Header="Control" >
-                <Border
-                    Margin="0 5"
-                    BorderBrush="LightGray"
-                    BorderThickness="1"
-                    Padding="10"
-                    >
-                        <Grid ColumnDefinitions="Auto, *"  RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
-                            <TextBlock Grid.Row="0" Grid.Column="0" Margin="10 5">Toggle Open chat window:</TextBlock> 
-                            <TextBox Grid.Row="0" Grid.Column="1" Margin="10 5" Name="OpenChatWindow" KeyDown="OnKeyDown" GotFocus="OnTextBoxFocused" LostFocus="OnTextBoxLostFocus" IsReadOnly="True"  Width="260" Watermark= "Press shortcut"  Text="{Binding ChatWindowKey, Mode=TwoWay} " >
+                </TabItem>
+                <TabItem Header="Control">
+                    <Border
+                        BorderBrush="LightGray"
+                        BorderThickness="1"
+                        Margin="0 4 0 0"
+                        Padding="8">
+                        <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Margin="10 5">Toggle Open chat window:</TextBlock>
+                            <TextBox Grid.Row="0" Grid.Column="1" Margin="10 5" Name="OpenChatWindow"
+                                     KeyDown="OnKeyDown" GotFocus="OnTextBoxFocused" LostFocus="OnTextBoxLostFocus"
+                                     IsReadOnly="True" HorizontalAlignment="Stretch" Watermark="Press shortcut"
+                                     Text="{Binding ChatWindowKey, Mode=TwoWay} ">
                                 <TextBox.Styles>
                                     <Style Selector="TextBox">
-                                        <Setter Property="CaretBrush" Value="Transparent"/>
+                                        <Setter Property="CaretBrush" Value="Transparent" />
                                     </Style>
                                 </TextBox.Styles>
                             </TextBox>
-                            
+
                             <TextBlock Grid.Row="1" Grid.Column="0" Margin="10 5">Take screenshot:</TextBlock>
-                            <TextBox Grid.Row="1" Grid.Column="1"  Margin="10 5" Name="TakeScreenshot" KeyDown="OnKeyDown" GotFocus="OnTextBoxFocused" LostFocus="OnTextBoxLostFocus" IsReadOnly="True" Width="260" Watermark="Press shortcut"  Text="{Binding ScreenshotKey, Mode=TwoWay}" >
+                            <TextBox Grid.Row="1" Grid.Column="1" Margin="10 5" Name="TakeScreenshot"
+                                     KeyDown="OnKeyDown" GotFocus="OnTextBoxFocused" LostFocus="OnTextBoxLostFocus"
+                                     IsReadOnly="True" HorizontalAlignment="Stretch" Watermark="Press shortcut"
+                                     Text="{Binding ScreenshotKey, Mode=TwoWay}">
                                 <TextBox.Styles>
                                     <Style Selector="TextBox">
-                                        <Setter Property="CaretBrush" Value="Transparent"/>
+                                        <Setter Property="CaretBrush" Value="Transparent" />
                                     </Style>
                                 </TextBox.Styles>
                             </TextBox>
-                            
+
                             <TextBlock Grid.Row="2" Grid.Column="0" Margin="10 5">Start over:</TextBlock>
-                            <TextBox Grid.Row="2" Grid.Column="1"  Margin="10 5" Name="StartOver" KeyDown="OnKeyDown" GotFocus="OnTextBoxFocused" LostFocus="OnTextBoxLostFocus" IsReadOnly="True"  Width="260" Watermark="Press shortcut"  Text="{Binding StartOverKey, Mode=TwoWay}" >
+                            <TextBox Grid.Row="2" Grid.Column="1" Margin="10 5" Name="StartOver" KeyDown="OnKeyDown"
+                                     GotFocus="OnTextBoxFocused" LostFocus="OnTextBoxLostFocus" IsReadOnly="True"
+                                     HorizontalAlignment="Stretch" Watermark="Press shortcut"
+                                     Text="{Binding StartOverKey, Mode=TwoWay}">
                                 <TextBox.Styles>
                                     <Style Selector="TextBox">
-                                        <Setter Property="CaretBrush" Value="Transparent"/>
+                                        <Setter Property="CaretBrush" Value="Transparent" />
                                     </Style>
                                 </TextBox.Styles>
                             </TextBox>
-                            
-                            <TextBlock Grid.Row="3" Grid.Column="0"  Margin="10 5">Ask AI:</TextBlock>
-                            <TextBox Grid.Row="3" Grid.Column="1"  Margin="10 5" Name="AskQuestion" KeyDown="OnKeyDown" GotFocus="OnTextBoxFocused" LostFocus="OnTextBoxLostFocus"  IsReadOnly="True" Width="260" Watermark="Press shortcut"  Text="{Binding AskAIKey, Mode=TwoWay}" >
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Margin="10 5">Ask AI:</TextBlock>
+                            <TextBox Grid.Row="3" Grid.Column="1" Margin="10 5" Name="AskAI" KeyDown="OnKeyDown"
+                                     GotFocus="OnTextBoxFocused" LostFocus="OnTextBoxLostFocus" IsReadOnly="True"
+                                     HorizontalAlignment="Stretch" Watermark="Press shortcut"
+                                     Text="{Binding AskAIKey, Mode=TwoWay}">
                                 <TextBox.Styles>
                                     <Style Selector="TextBox">
-                                        <Setter Property="CaretBrush" Value="Transparent"/>
+                                        <Setter Property="CaretBrush" Value="Transparent" />
                                     </Style>
                                 </TextBox.Styles>
                             </TextBox>
-                            
-                            <TextBlock Grid.Row="4" Grid.Column="0"  Margin="10 5">Toggle mouse click-through:</TextBlock>
-                            <TextBox Grid.Row="4" Grid.Column="1"  Margin="10 5" Name="ClickThrough" KeyDown="OnKeyDown" GotFocus="OnTextBoxFocused" LostFocus="OnTextBoxLostFocus"  IsReadOnly="True"  Width="260" Watermark="Press shortcut"  Text="{Binding ClickThroughKey, Mode=TwoWay}" >
+
+                            <TextBlock Grid.Row="4" Grid.Column="0" Margin="10 5">Toggle mouse click-through:</TextBlock>
+                            <TextBox Grid.Row="4" Grid.Column="1" Margin="10 5" Name="ClickThrough" KeyDown="OnKeyDown"
+                                     GotFocus="OnTextBoxFocused" LostFocus="OnTextBoxLostFocus" IsReadOnly="True"
+                                     HorizontalAlignment="Stretch" Watermark="Press shortcut"
+                                     Text="{Binding ClickThroughKey, Mode=TwoWay}">
                                 <TextBox.Styles>
                                     <Style Selector="TextBox">
-                                        <Setter Property="CaretBrush" Value="Transparent"/>
+                                        <Setter Property="CaretBrush" Value="Transparent" />
                                     </Style>
                                 </TextBox.Styles>
                             </TextBox>
-                            
-                            <TextBlock Grid.Row="5" Grid.Column="0"  Margin="10 5">Quit application:</TextBlock>
-                            <TextBox Grid.Row="5" Grid.Column="1"  Margin="10 5" Name="QuitApp" KeyDown="OnKeyDown" GotFocus="OnTextBoxFocused" LostFocus="OnTextBoxLostFocus"  IsReadOnly="True"  Width="260" Watermark="Press shortcut"  Text="{Binding QuitAppKey, Mode=TwoWay}" >
+
+                            <TextBlock Grid.Row="5" Grid.Column="0" Margin="10 5">Quit application:</TextBlock>
+                            <TextBox Grid.Row="5" Grid.Column="1" Margin="10 5" Name="QuitApp" KeyDown="OnKeyDown"
+                                     GotFocus="OnTextBoxFocused" LostFocus="OnTextBoxLostFocus" IsReadOnly="True"
+                                     HorizontalAlignment="Stretch" Watermark="Press shortcut"
+                                     Text="{Binding QuitAppKey, Mode=TwoWay}">
                                 <TextBox.Styles>
                                     <Style Selector="TextBox">
-                                        <Setter Property="CaretBrush" Value="Transparent"/>
+                                        <Setter Property="CaretBrush" Value="Transparent" />
                                     </Style>
                                 </TextBox.Styles>
                             </TextBox>
                         </Grid>
                     </Border>
-            </TabItem>
-            <TabItem Header="About" >
-                <Border
-                    Margin="0 5"
-                    BorderThickness="1"
-                    BorderBrush="LightGray"
-                    Padding="10"
-                    >
-                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="16">
-                        
-                        <Image Width="96" Height="96" Source="/Assets/AppIcon.ico"/>
-                        <TextBlock Text="Anu" FontSize="20" FontWeight="Bold" TextAlignment="Center"/>
-                        <StackPanel Spacing="10">
-                            <TextBlock Text="{Binding Version}" TextAlignment="Center"/>
-                            <TextBlock Text="{Binding Copyright}" TextAlignment="Center"/>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Website " TextAlignment="Center"/>
-                                <Button Content="{Binding Url}"
-                                        Background="Transparent"
-                                        BorderBrush="Transparent"
-                                        BorderThickness="0"
-                                        Padding="1"
-                                        Cursor="Hand"
-                                        Foreground="Blue"
-                                        Click="OpenUr"/>
+                </TabItem>
+                <TabItem Header="About">
+                    <Border
+                        BorderThickness="1"
+                        BorderBrush="LightGray"
+                        Margin="0 4 0 0"
+                        Padding="8">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="16">
+                            <Image Width="96" Height="96" Source="/Assets/AppIcon.ico" />
+                            <TextBlock Text="Anu" FontSize="20" FontWeight="Bold" TextAlignment="Center" />
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="{Binding Version}" TextAlignment="Center" />
+                                <TextBlock Text="{Binding Copyright}" TextAlignment="Center" />
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Website " TextAlignment="Center" />
+                                    <HyperlinkButton Content="{Binding Url}"
+                                                     NavigateUri="{Binding Url}"
+                                                     Background="Transparent"
+                                                     BorderBrush="Transparent"
+                                                     BorderThickness="0"
+                                                     Padding="1"
+                                                     Foreground="{StaticResource HyperlinkBrush}" />
+                                </StackPanel>
                             </StackPanel>
                         </StackPanel>
-                    </StackPanel>
-                </Border>
-            </TabItem>
-        </TabControl>
-    </DockPanel>
+                    </Border>
+                </TabItem>
+            </TabControl>
+        </DockPanel>
+    </Panel>
 </Window>

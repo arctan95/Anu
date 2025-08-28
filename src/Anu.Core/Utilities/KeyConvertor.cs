@@ -4,9 +4,9 @@ using SharpHook.Native;
 
 namespace Anu.Core.Utilities;
 
-public class KeyConvertor
+public static class KeyConvertor
 {
-    public static KeyModifiers ToKeyModifiers(ModifierMask mask)
+    public static KeyModifiers ToKeyModifier(ModifierMask mask)
     {
         KeyModifiers result = KeyModifiers.None;
 

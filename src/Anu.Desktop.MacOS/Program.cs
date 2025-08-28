@@ -19,6 +19,7 @@ class Program
             .AddSingleton<IScreenCapturer, ScreenCapturer>()
             .AddSingleton<IWindowConfigurator, WindowConfigurator>()
             .AddSingleton<ISystemHotKeyRegister, SystemHotkeyRegister>()
+            .AddSingleton<IAutostartManager, AutostartManager>()
             .AddSingleton<ConfigService>()
             .AddSingleton<ChatWindowViewModel>()
             .AddSingleton<SettingsWindowViewModel>()

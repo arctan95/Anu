@@ -1,0 +1,14 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="clr-namespace:Anu.Core.Views"
+             xmlns:viewModels="clr-namespace:Anu.Core.ViewModels"
+             x:Class="Anu.Core.Views.Chat.Messages.AssistantMessageView"
+             x:DataType="viewModels:ChatMessageViewModel">
+    <views:CustomMarkdownScrollViewer SelectionEnabled="True"
+                                      Margin="8 12"
+                                      Markdown="{Binding Message}">
+        <views:CustomMarkdownScrollViewer.Styles>
+            <StyleInclude Source="/Styles/MarkdownStyles.axaml" />
+        </views:CustomMarkdownScrollViewer.Styles>
+    </views:CustomMarkdownScrollViewer>
+</UserControl>

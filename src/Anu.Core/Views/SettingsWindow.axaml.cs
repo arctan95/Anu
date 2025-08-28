@@ -1,5 +1,3 @@
-using System;
-using System.Diagnostics;
 using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Controls.Converters;
@@ -14,8 +12,8 @@ namespace Anu.Core.Views;
 
 public partial class SettingsWindow : Window
 {
-
-    private readonly Key[] _modifierKeys =  [
+    private readonly Key[] _modifierKeys =
+    [
         Key.LeftShift,
         Key.RightShift,
         Key.LeftCtrl,
@@ -43,11 +41,13 @@ public partial class SettingsWindow : Window
                 GlobalHotkeyRecorder.StartRecording(hotkey =>
                 {
                     var key = KeyConvertor.ToKey(hotkey.Key);
-                    var modifiers = KeyConvertor.ToKeyModifiers(hotkey.Modifier);
-                    if (key != Key.None && modifiers != KeyModifiers.None)
+                    var modifier = KeyConvertor.ToKeyModifier(hotkey.Modifier);
+                    if (key != Key.None && modifier != KeyModifiers.None)
                     {
+                        hotkey.SetFunctionBinding(FunctionRegistry.GetFunction(functionName));
                         viewModel.RecordHotKey(functionName, hotkey);
-                        Dispatcher.UIThread.InvokeAsync(() => textBox.Text = PlatformKeyGestureConverter.ToPlatformString(new KeyGesture(key, modifiers)));
+                        Dispatcher.UIThread.InvokeAsync(() =>
+                            textBox.Text = PlatformKeyGestureConverter.ToPlatformString(new KeyGesture(key, modifier)));
                     }
                 });
             }
@@ -63,6 +63,7 @@ public partial class SettingsWindow : Window
                 textBox.Text = PlatformKeyGestureConverter.ToPlatformString(new KeyGesture(e.Key, e.KeyModifiers));
             }
         }
+
         e.Handled = true;
     }
 
@@ -81,33 +82,8 @@ public partial class SettingsWindow : Window
         {
             viewModel.SettingsWindowShown = false;
         }
+
         base.OnClosing(e);
     }
-
-    private void OpenUr(object? sender, RoutedEventArgs e)
-    {
-        if (DataContext is SettingsWindowViewModel viewModel)
-        {
-            if (OperatingSystem.IsWindows())
-            {
-                using var proc = new Process();
-                proc.StartInfo.UseShellExecute = true;
-                proc.StartInfo.FileName = viewModel.Url;
-                proc.Start();
-
-                return;
-            }
-
-            if (OperatingSystem.IsLinux())
-            {
-                Process.Start("x-www-browser", viewModel.Url);
-                return;
-            }
-
-            if (OperatingSystem.IsMacOS())
-            {
-                Process.Start("open", viewModel.Url);
-            }
-        }
-    }
+    
 }

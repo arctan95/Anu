@@ -8,7 +8,8 @@ public class ServiceProviderBuilder
     public static ServiceProvider? ServiceProvider { get; private set; }
     private static readonly IServiceCollection Services = new ServiceCollection();
 
-    public ServiceProviderBuilder AddSingleton<TService, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]TImplementation>()
+    public ServiceProviderBuilder AddSingleton<TService,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TImplementation>()
         where TService : class
         where TImplementation : class, TService
     {
@@ -16,7 +17,9 @@ public class ServiceProviderBuilder
         return this;
     }
 
-    public ServiceProviderBuilder AddSingleton<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]TService>() where TService : class
+    public ServiceProviderBuilder AddSingleton<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TService>()
+        where TService : class
     {
         Services.AddSingleton<TService>();
         return this;

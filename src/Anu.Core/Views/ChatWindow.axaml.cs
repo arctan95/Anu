@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Anu.Core.ViewModels;
+using Avalonia.Reactive;
 
 namespace Anu.Core.Views;
 
@@ -13,29 +14,46 @@ public partial class ChatWindow : Window
         InitializeComponent();
         Activated += OnActivated;
         Deactivated += OnDeActivated;
-        Resized += OnResized;
         Closing += OnClosing;
+        Resized += OnResized;
+
+        ChatScrollViewer
+            .GetObservable(ScrollViewer.ExtentProperty)
+            .Subscribe(new AnonymousObserver<Size>(_ =>
+            {
+                if (DataContext is ChatWindowViewModel { MessageStreaming: true })
+                {
+                    ChatScrollViewer.ScrollToEnd();
+                }
+            }));
+    }
+
+    private void OnPointerEntered(object? sender, PointerEventArgs e)
+    {
+        if (DataContext is ChatWindowViewModel vm)
+        {
+            if (!vm.IgnoreMouseEvents)
+            {
+                vm.IsMenubarVisible = true;
+            }
+        }
+    }
+
+    private void OnPointerExited(object? sender, PointerEventArgs e)
+    {
+        if (DataContext is ChatWindowViewModel vm)
+        {
+            vm.IsMenubarVisible = false;
+        }
     }
 
     private void OnActivated(object? sender, EventArgs e)
     {
-        if (Application.Current is App app)
-        {
-            app.HideShortcutHintWindow();
-        }
         if (DataContext is ChatWindowViewModel vm)
         {
-            vm.ChatBoxOpacity = "0.5";
-            ForceFocusUserPromptInput();
-        }
-    }
-
-    private void OnResized(object? sender, WindowResizedEventArgs e)
-    {
-        if (DataContext is ChatWindowViewModel vm)
-        {
-            vm.ChatBoxHeight = e.ClientSize.Height;
-            vm.ChatBoxWidth = e.ClientSize.Width;
+            vm.ChatWindowOpacity = "0.5";
+            vm.IsMenubarVisible = true;
+            UserPrompt.Focus();
         }
     }
 
@@ -43,19 +61,24 @@ public partial class ChatWindow : Window
     {
         if (DataContext is ChatWindowViewModel vm)
         {
-            vm.ChatBoxOpacity = "0.4";
+            vm.ChatWindowOpacity = "0.4";
+            vm.IsMenubarVisible = false;
         }
     }
-
+    
+    private void OnResized(object? sender, WindowResizedEventArgs e)
+    {
+        if (DataContext is ChatWindowViewModel vm)
+        {
+            vm.ChatWindowWidth = e.ClientSize.Width;
+            vm.ChatWindowHeight = e.ClientSize.Height;
+        }
+    }
+    
     protected override void OnOpened(EventArgs e)
     {
         DetectScreenSize();
         base.OnOpened(e);
-    }
-
-    private void ForceFocusUserPromptInput()
-    {
-        UserPrompt.Focus();
     }
 
     private void DetectScreenSize()
@@ -65,10 +88,10 @@ public partial class ChatWindow : Window
         {
             if (DataContext is ChatWindowViewModel viewModel)
             {
-                viewModel.WindowPositionX = Position.X;
-                viewModel.WindowPositionY = Position.Y;
                 viewModel.ScreenWidth = screen.Bounds.Width;
                 viewModel.ScreenHeight = screen.Bounds.Height;
+                Position = new PixelPoint((int)(screen.Bounds.X + (screen.Bounds.Width - Width) / 2),
+                    (int)(screen.Bounds.Y + (screen.Bounds.Height - Height) / 2));
             }
         }
     }
@@ -77,11 +100,11 @@ public partial class ChatWindow : Window
     {
         if (Application.Current is App app)
         {
-            app.HideChatAndShortcutHintWindow();
+            app.HideChatWindow();
         }
     }
 
-    private void TitleBar_PointerPressed(object? sender, PointerPressedEventArgs e)
+    private void Window_PointerPressed(object? sender, PointerPressedEventArgs e)
     {
         if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
         {
