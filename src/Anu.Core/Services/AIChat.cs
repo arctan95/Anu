@@ -76,7 +76,7 @@ public class AIChat
             // and accumulate the arguments as new updates arrive.
             if (toolCallUpdate.FunctionArgumentsUpdate != null && !toolCallUpdate.FunctionArgumentsUpdate.ToMemory().IsEmpty)
             {
-                if (!_indexToFunctionArguments.TryGetValue(index, out SequenceBuilder<byte> argumentsBuilder))
+                if (!_indexToFunctionArguments.TryGetValue(index, out var argumentsBuilder))
                 {
                     argumentsBuilder = new SequenceBuilder<byte>();
                     _indexToFunctionArguments[index] = argumentsBuilder;
@@ -109,8 +109,8 @@ public class AIChat
 
     public class SequenceBuilder<T>
     {
-        Segment _first;
-        Segment _last;
+        Segment? _first;
+        Segment? _last;
 
         public void Append(ReadOnlyMemory<T> data)
         {
@@ -122,7 +122,7 @@ public class AIChat
             }
             else
             {
-                _last = _last!.Append(data);
+                _last = _last?.Append(data);
             }
         }
 
