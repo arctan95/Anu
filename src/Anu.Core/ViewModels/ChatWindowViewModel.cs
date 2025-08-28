@@ -73,7 +73,7 @@ public partial class ChatWindowViewModel : ViewModelBase
         }
     }
 
-    public async Task AskQuestion()
+    public async Task AskQuestion(bool enableConversationMemory = false)
     {
         Bitmap? image = null;
         if (image == null)
@@ -95,7 +95,7 @@ public partial class ChatWindowViewModel : ViewModelBase
         {
             ImageSource = image;
         }
-        await AIChat.Ask();
+        await AIChat.Ask(enableConversationMemory);
     }
 
     public void StopAIResponse()
@@ -108,7 +108,7 @@ public partial class ChatWindowViewModel : ViewModelBase
 
     public async Task SendMessage()
     {
-        await AskQuestion();
+        await AskQuestion(true);
     }
 
     public void OnMouseMoved(int mouseX, int mouseY)
