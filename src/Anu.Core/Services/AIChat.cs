@@ -526,6 +526,7 @@ public class AIChat
             }
             catch (Exception)
             {
+                _chatWindowViewModel.UpdateText("Something went wrong.");
                 StopAIResponseStream(_chatWindowViewModel.LastRequestId);
             }
         }
