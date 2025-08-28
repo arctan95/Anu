@@ -76,7 +76,7 @@ public class AIChat
             // and accumulate the arguments as new updates arrive.
             if (toolCallUpdate.FunctionArgumentsUpdate != null && !toolCallUpdate.FunctionArgumentsUpdate.ToMemory().IsEmpty)
             {
-                if (!_indexToFunctionArguments.TryGetValue(index, out SequenceBuilder<byte> argumentsBuilder))
+                if (!_indexToFunctionArguments.TryGetValue(index, out var argumentsBuilder))
                 {
                     argumentsBuilder = new SequenceBuilder<byte>();
                     _indexToFunctionArguments[index] = argumentsBuilder;
@@ -109,8 +109,8 @@ public class AIChat
 
     public class SequenceBuilder<T>
     {
-        Segment _first;
-        Segment _last;
+        Segment? _first;
+        Segment? _last;
 
         public void Append(ReadOnlyMemory<T> data)
         {
@@ -122,7 +122,7 @@ public class AIChat
             }
             else
             {
-                _last = _last!.Append(data);
+                _last = _last?.Append(data);
             }
         }
 
@@ -325,12 +325,6 @@ public class AIChat
                                             assistantMessage.Content.Add(ChatMessageContentPart.CreateTextPart(contentBuilder.ToString()));
                                         }
                                         _messages.Add(assistantMessage);
-                                        
-                                        // Force close allow operations on screen
-                                        if (Application.Current is App application && !_chatWindowViewModel.IgnoreMouseEvents)
-                                        {
-                                            application.ToggleClickThrough();
-                                        }
 
                                         // Then, add a new tool message for each tool call to be resolved.
                                         foreach (ChatToolCall toolCall in toolCalls)
@@ -553,12 +547,6 @@ public class AIChat
                 _chatWindowViewModel.UpdateText("Something went wrong.");
                 StopAIResponseStream(_chatWindowViewModel.LastRequestId);
             }
-        }
-        
-        if (Application.Current is App app && _chatWindowViewModel is { IgnoreMouseEvents: true } and { FirstShowActivated: true })
-        {
-            app.ToggleClickThrough();
-            app.OpenChatWindowForInput();
         }
         
         if (_chatWindowViewModel != null) 

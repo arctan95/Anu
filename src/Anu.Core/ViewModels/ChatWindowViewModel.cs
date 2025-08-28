@@ -50,8 +50,6 @@ public partial class ChatWindowViewModel : ViewModelBase
     private bool _overlayWindow = true;
     [ObservableProperty]
     private bool _ignoreMouseEvents = true;
-    [ObservableProperty]
-    private bool _firstShowActivated;
 
     partial void OnChatWithScreenshotChanged(bool value)
     {
