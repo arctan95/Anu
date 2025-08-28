@@ -55,8 +55,8 @@ public class ConfigService
         {
             return current.Deserialize(typedInfo);
         }
-        throw new NotSupportedException($"Type {typeof(T)} is not supported for deserialization.");
 
+        throw new NotSupportedException($"Type {typeof(T)} is not supported for deserialization.");
     }
 
     private static JsonTypeInfo? GetJsonTypeInfo(Type type)
@@ -81,6 +81,7 @@ public class ConfigService
                 nextObj = new JsonObject();
                 current[key] = nextObj;
             }
+
             current = nextObj;
         }
 

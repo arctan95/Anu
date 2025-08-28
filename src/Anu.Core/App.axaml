@@ -4,25 +4,71 @@
              x:Class="Anu.Core.App"
              x:DataType="local:App"
              RequestedThemeVariant="Default">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+    <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.Styles>
-        <FluentTheme DensityStyle="Compact"/>
+        <FluentTheme DensityStyle="Compact" />
+        <StyleInclude Source="avares://Anu.Core/Styles/Icons.axaml" />
     </Application.Styles>
-     <TrayIcon.Icons>
-         <TrayIcons>
-             <TrayIcon Icon="/Assets/Icon.ico" ToolTipText="Anu">
-                 <TrayIcon.Menu>
-                     <NativeMenu>
-                         <NativeMenuItem Header="_Open Anu" Command="{Binding MainCommand}" />
-                         <NativeMenuItemSeparator />
-                         <NativeMenuItem Header="_Settings..." Command="{Binding SettingsCommand}" />
-                         <NativeMenuItem Header="_Check for updates..." Command="{Binding CheckUpdatesCommand}" />
-                         <NativeMenuItemSeparator />
-                         <NativeMenuItem Header="_Quit" Command="{Binding QuitCommand}" />
-                     </NativeMenu>
-                 </TrayIcon.Menu>
-             </TrayIcon>
-         </TrayIcons>
-     </TrayIcon.Icons>
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key='Light'>
+                    <Color x:Key='App.BackgroundColor'>White</Color>
+                    <SolidColorBrush x:Key='Textbox.BackgroundBrush'>Gainsboro</SolidColorBrush>
+                    <SolidColorBrush x:Key='Textbox.BorderBrush'>Gray</SolidColorBrush>
+                    <SolidColorBrush x:Key='ToolButton.ForegroundBrush'>Black</SolidColorBrush>
+                    <SolidColorBrush x:Key='ToolButton.BackgroundBrush'>DarkGray</SolidColorBrush>
+                    <SolidColorBrush x:Key='SendButton.BackgroundBrush'>Black</SolidColorBrush>
+                    <SolidColorBrush x:Key='SendButton.ForegroundBrush'>White</SolidColorBrush>
+                    <SolidColorBrush x:Key='UserPrompt.BackgroundBrush'>Gainsboro</SolidColorBrush>
+                    <SolidColorBrush x:Key='UserPrompt.ForegroundBrush'>Black</SolidColorBrush>
+                    <SolidColorBrush x:Key='Markdown.ForegroundBrush'>Black</SolidColorBrush>
+                    <SolidColorBrush x:Key='Markdown.Inline.BackgroundBrush'>LightGray</SolidColorBrush>
+                    <SolidColorBrush x:Key='Markdown.Block.BackgroundBrush'>LightGray</SolidColorBrush>
+                    <SolidColorBrush x:Key='Markdown.EvenTableRow.BackgroundBrush'>LightGray</SolidColorBrush>
+                    <SolidColorBrush x:Key='Markdown.OddTableRow.BackgroundBrush'>DarkGray</SolidColorBrush>
+                    <SolidColorBrush x:Key='Markdown.TableHeader.BackgroundBrush'>DarkGray</SolidColorBrush>
+                    <SolidColorBrush x:Key='Markdown.BorderBrush'>Gray</SolidColorBrush>
+                    <SolidColorBrush x:Key='HyperlinkBrush'>Blue</SolidColorBrush>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key='Dark'>
+                    <Color x:Key='App.BackgroundColor'>Black</Color>
+                    <SolidColorBrush x:Key='Textbox.BackgroundBrush'>#80454545</SolidColorBrush>
+                    <SolidColorBrush x:Key='Textbox.BorderBrush'>#80505050</SolidColorBrush>
+                    <SolidColorBrush x:Key='ToolButton.ForegroundBrush'>DarkGray</SolidColorBrush>
+                    <SolidColorBrush x:Key='ToolButton.BackgroundBrush'>DimGray</SolidColorBrush>
+                    <SolidColorBrush x:Key='SendButton.BackgroundBrush'>White</SolidColorBrush>
+                    <SolidColorBrush x:Key='SendButton.ForegroundBrush'>Black</SolidColorBrush>
+                    <SolidColorBrush x:Key='UserPrompt.BackgroundBrush'>#80454545</SolidColorBrush>
+                    <SolidColorBrush x:Key='UserPrompt.ForegroundBrush'>White</SolidColorBrush>
+                    <SolidColorBrush x:Key='Markdown.ForegroundBrush'>White</SolidColorBrush>
+                    <SolidColorBrush x:Key='Markdown.Inline.BackgroundBrush'>#80505050</SolidColorBrush>
+                    <SolidColorBrush x:Key='Markdown.Block.BackgroundBrush'>#80505050</SolidColorBrush>
+                    <SolidColorBrush x:Key='Markdown.EvenTableRow.BackgroundBrush'>#80505050</SolidColorBrush>
+                    <SolidColorBrush x:Key='Markdown.OddTableRow.BackgroundBrush'>#12000000</SolidColorBrush>
+                    <SolidColorBrush x:Key='Markdown.TableHeader.BackgroundBrush'>#12000000</SolidColorBrush>
+                    <SolidColorBrush x:Key='Markdown.BorderBrush'>DarkGray</SolidColorBrush>
+                    <SolidColorBrush x:Key='HyperlinkBrush'>DodgerBlue</SolidColorBrush>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+
+    <TrayIcon.Icons>
+        <TrayIcons>
+            <TrayIcon Icon="/Assets/Icon.ico" Clicked="TrayIcon_OnClicked" ToolTipText="Anu">
+                <TrayIcon.Menu>
+                    <NativeMenu>
+                        <NativeMenuItem Header="_Open Anu" Command="{Binding MainCommand}" />
+                        <NativeMenuItemSeparator />
+                        <NativeMenuItem Header="_Settings..." Command="{Binding SettingsCommand}" />
+                        <NativeMenuItem Header="_Check for updates..." Command="{Binding CheckUpdatesCommand}" />
+                        <NativeMenuItemSeparator />
+                        <NativeMenuItem Header="_Quit" Command="{Binding QuitCommand}" />
+                    </NativeMenu>
+                </TrayIcon.Menu>
+            </TrayIcon>
+        </TrayIcons>
+    </TrayIcon.Icons>
 </Application>

@@ -4,7 +4,7 @@ using SharpHook.Native;
 
 namespace Anu.Core.Utilities;
 
-public class KeyCodeMap
+public static class KeyCodeMap
 {
     public static readonly Dictionary<KeyCode, Key> Map = new()
     {
@@ -75,9 +75,9 @@ public class KeyCodeMap
         [KeyCode.VcX] = Key.X,
         [KeyCode.VcY] = Key.Y,
         [KeyCode.VcZ] = Key.Z,
-        [KeyCode.VcOpenBracket] = Key.Oem4,
+        [KeyCode.VcOpenBracket] = Key.OemOpenBrackets,
         [KeyCode.VcCloseBracket] = Key.OemCloseBrackets,
-        [KeyCode.VcBackslash] = Key.OemPipe,
+        [KeyCode.VcBackslash] = Key.OemBackslash,
         [KeyCode.VcSemicolon] = Key.OemSemicolon,
         [KeyCode.VcQuote] = Key.OemQuotes,
         [KeyCode.VcEnter] = Key.Enter,
@@ -151,9 +151,6 @@ public class KeyCodeMap
         [KeyCode.VcBrowserRefresh] = Key.BrowserRefresh,
         [KeyCode.VcBrowserFavorites] = Key.BrowserFavorites
     };
-
-    // currently not in use
-    // public static readonly Dictionary<Key, KeyCode> MapReverse = Reverse(Map);
 
     private static Dictionary<TV, TK> Reverse<TK, TV>(Dictionary<TK, TV> oldDict) where TV : notnull where TK : notnull
     {

@@ -29,5 +29,13 @@
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="Views\Chat\Messages\AssistantMessageView.axaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Converters\" />
+  </ItemGroup>
   
 </Project>

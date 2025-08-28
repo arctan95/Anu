@@ -5,7 +5,7 @@ using SharpHook.Native;
 
 namespace Anu.Core.Services;
 
-public class GlobalHotkeyRecorder
+public static class GlobalHotkeyRecorder
 {
     private static volatile bool _isRecording;
     private static volatile Action<GlobalHotkey>? _recordCallback;
@@ -37,6 +37,5 @@ public class GlobalHotkeyRecorder
 
         var hotkey = new GlobalHotkey(e.RawEvent.Mask, e.Data.KeyCode);
         _recordCallback?.Invoke(hotkey);
-
     }
 }

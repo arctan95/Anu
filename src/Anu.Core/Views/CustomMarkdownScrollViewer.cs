@@ -1,3 +1,4 @@
+using Avalonia.Controls;
 using Avalonia.Input;
 using Markdown.Avalonia;
 
@@ -9,8 +10,14 @@ public class CustomMarkdownScrollViewer : MarkdownScrollViewer
     {
         Plugins = new MdAvPlugins();
         Plugins.Plugins.Add(new ChatAISetup());
+        AddHandler(RequestBringIntoViewEvent, OnRequestBringIntoView, handledEventsToo: true);
     }
 
+    private void OnRequestBringIntoView(object? sender, RequestBringIntoViewEventArgs e)
+    {
+        e.Handled = true;
+    }
+    
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
         base.OnPointerPressed(e);

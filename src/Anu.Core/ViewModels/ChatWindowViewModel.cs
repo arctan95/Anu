@@ -1,4 +1,7 @@
+using System;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using Anu.Core.Models;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -11,39 +14,39 @@ public partial class ChatWindowViewModel : ViewModelBase
     [ObservableProperty]
     private Bitmap? _imageSource;
     [ObservableProperty]
-    private string _userMessage = "";
+    private string _userPrompt = "";
     [ObservableProperty]
     private string _lastRequestId = "";
     [ObservableProperty]
     private bool _messageRequested;
     [ObservableProperty]
-    private int _windowPositionX;
-    [ObservableProperty]
-    private int _windowPositionY;
+    private bool _messageStreaming;
     [ObservableProperty]
     private int _cursorPositionX;
     [ObservableProperty]
     private int _cursorPositionY;
     [ObservableProperty]
-    private Vector _markdownScrollValue = Vector.Zero;
+    private Vector _scrollValue = Vector.Zero;
     [ObservableProperty]
-    private string _mdText = "What can I help with?";
+    private Size _extentSize;
     [ObservableProperty]
-    private string _chatBoxOpacity = "0.4";
+    private Size _viewPortSize;
+    [ObservableProperty]
+    private string _chatWindowOpacity = "0.5";
     [ObservableProperty]
     private bool _followPointer;
     [ObservableProperty]
-    private double _chatBoxWidth;
+    private double _chatWindowWidth;
     [ObservableProperty]
-    private double _chatBoxHeight;
+    private double _chatWindowHeight;
     [ObservableProperty]
     private double _screenWidth;
     [ObservableProperty]
     private double _screenHeight;
     [ObservableProperty]
-    private bool _chatWithScreenshot;
+    private bool _reasoning;
     [ObservableProperty]
-    private bool _readClipboardImage;
+    private bool _computerUse;
     [ObservableProperty]
     private bool _contentProtection = true;
     [ObservableProperty]
@@ -51,58 +54,114 @@ public partial class ChatWindowViewModel : ViewModelBase
     [ObservableProperty]
     private bool _ignoreMouseEvents = true;
     [ObservableProperty]
-    private bool _firstShowActivated;
+    private bool _isMenubarVisible;
+    [ObservableProperty]
+    private bool _arcylicEnabled;
 
-    partial void OnChatWithScreenshotChanged(bool value)
+    public ObservableCollection<ChatMessageViewModel> Messages { get; } = new();
+
+    private ChatMessageViewModel? _assistantMessageInProgress;
+
+    partial void OnIgnoreMouseEventsChanged(bool value)
     {
-        if (!value)
+        ArcylicEnabled = !value;
+    }
+
+    public void AddUserMessage(string text)
+    {
+        var message = ChatMessageViewModel.CreateUserMessage(text);
+        Messages.Add(message);
+    }
+
+    public void AddUserMessage(Bitmap? image)
+    {
+        var imagePart = MessageContentPart.CreateImagePart(image);
+        var message = ChatMessageViewModel.CreateUserMessage([imagePart]);
+        Messages.Add(message);
+    }
+
+    public void AddErrorMessage(string text)
+    {
+        AddAssistantMessage(text);
+    }
+
+    public void AddAssistantMessage(string text)
+    {
+        var message = ChatMessageViewModel.CreateAssistantMessage(text);
+        Messages.Add(message);
+    }
+    
+    public void UpdateLastRequestId(string requestId)
+    {
+        LastRequestId = requestId;
+    }
+
+    public void StartAssistantResponse()
+    {
+        MessageStreaming = true;
+        _assistantMessageInProgress = ChatMessageViewModel.CreateAssistantMessage(string.Empty);
+        Messages.Add(_assistantMessageInProgress);
+    }
+
+    public void AppendAssistantText(string chunk)
+    {
+        if (_assistantMessageInProgress == null)
         {
-            ImageSource = null;
+            StartAssistantResponse();
         }
-        else
+        _assistantMessageInProgress!.MessageContent.Add(MessageContentPart.CreateTextPart(chunk));
+    }
+
+    public void EndAssistantResponse()
+    {
+        _assistantMessageInProgress = null;
+    }
+
+    public async Task ReadClipboardImage()
+    {
+        if (Application.Current is App app)
         {
-            ReadClipboardImage = false;
+            ImageSource = await app.LoadClipboardImageAsync();
         }
     }
 
-    partial void OnReadClipboardImageChanged(bool value)
+    public async Task TakeScreenshot()
     {
-        if (value)
+        if (Application.Current is App app)
         {
-            ChatWithScreenshot = false;
+            ImageSource = await app.TakeScreenshotAsync();
         }
     }
 
     public async Task AskQuestion(bool enableConversationMemory = false)
     {
-        Bitmap? image = null;
-        if (image == null)
-        {
-            if (Application.Current is App app)
-            {
-                if (ChatWithScreenshot)
-                {
-                    image = await app.TakeScreenshotAsync();
-                }
-                else if (ReadClipboardImage)
-                {
-                    image = await app.LoadClipboardImageAsync();
-                }
-            }
-        }
-
-        if (ImageSource == null)
-        {
-            ImageSource = image;
-        }
-        await AIChat.Ask(enableConversationMemory);
+        await ChatService.Ask(enableConversationMemory);
     }
 
-    public void StopAIResponse()
+    public async Task SendOrStop()
     {
-        if (!string.IsNullOrWhiteSpace(LastRequestId))
+        if (MessageRequested)
         {
-            AIChat.StopAIResponseStream(LastRequestId);
+            EndConversation();
+        }
+        else
+        {
+            await SendMessage();
+        }
+    }
+
+    public void StartConversation()
+    {
+        MessageRequested = true;
+    }
+    
+    public void EndConversation()
+    {
+        MessageRequested = false;
+        MessageStreaming = false;
+        if (!string.IsNullOrEmpty(LastRequestId))
+        {
+            ChatService.StopAIResponseStream(LastRequestId);
         }
     }
 
@@ -121,7 +180,7 @@ public partial class ChatWindowViewModel : ViewModelBase
             return;
         }
 
-        int deltaX = -(int)(ChatBoxWidth / 2);
+        int deltaX = -(int)(ChatWindowWidth / 2);
         int deltaY = 20;
 
         if (Application.Current is App app)
@@ -130,14 +189,29 @@ public partial class ChatWindowViewModel : ViewModelBase
         }
     }
 
-    public void UpdateText(string text)
-    {
-        MdText += text;
-    }
-
     public void ClearScreen()
     {
-        MdText = string.Empty;
+        Messages.Clear();
+        _assistantMessageInProgress = null;
+    }
+
+    public void ClearInput()
+    {
+        UserPrompt = string.Empty;
+        DeleteImage();
+    }
+
+    public void DeleteImage()
+    {
+        ImageSource = null;
+    }
+
+    public void CloseWindow()
+    {
+        if (Application.Current is App app)
+        {
+            app.HideChatWindow();
+        }
     }
 
     public void ToggleFollowPointer()
@@ -145,16 +219,23 @@ public partial class ChatWindowViewModel : ViewModelBase
         FollowPointer = !FollowPointer;
     }
 
-    public void ScrollMarkdown(Vector offset)
+    public void ScrollContent(Vector offset)
     {
-        // FIXME: find a way to fix unlimited scrolling
-        var newX = MarkdownScrollValue.X + offset.X;
-        var newY = MarkdownScrollValue.Y + offset.Y;
-        MarkdownScrollValue = new Vector(newX, newY);
+        var newX = ScrollValue.X + offset.X;
+        var newY = ScrollValue.Y + offset.Y;
+
+        var maxX = Math.Max(0, ExtentSize.Width  - ViewPortSize.Width);
+        var maxY = Math.Max(0, ExtentSize.Height - ViewPortSize.Height);
+
+        newX = Math.Clamp(newX, 0, maxX);
+        newY = Math.Clamp(newY, 0, maxY);
+
+        ScrollValue = new Vector(newX, newY);
     }
 
     public void ShowMissingApiKeyHint()
     {
-        MdText = "Please configure your AI provider's API key in the settings.";
+        Messages.Add(ChatMessageViewModel.CreateAssistantMessage("Please configure your AI provider's API key in the settings."));
     }
+
 }

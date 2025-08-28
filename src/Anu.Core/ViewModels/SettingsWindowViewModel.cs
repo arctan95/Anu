@@ -14,6 +14,7 @@ namespace Anu.Core.ViewModels;
 public partial class SettingsWindowViewModel : ViewModelBase
 {
     private readonly ConfigService? _configService;
+    private readonly IAutostartManager? _autostartManager;
 
     [ObservableProperty]
     private string? _systemPrompt;
@@ -70,7 +71,18 @@ public partial class SettingsWindowViewModel : ViewModelBase
 
     partial void OnAutoCheckForUpdatesChanged(bool value) => _configService?.Set("general.auto_check_for_updates", value);
 
-    partial void OnStartOnBootChanged(bool value) => _configService?.Set("general.start_on_boot", value);
+    partial void OnStartOnBootChanged(bool value)
+    {
+        _configService?.Set("general.start_on_boot", value);
+        if (value)
+        {
+            _autostartManager?.EnableAutoStart();
+        }
+        else
+        {
+            _autostartManager?.DisableAutoStart();
+        }
+    }
 
     partial void OnSystemPromptChanged(string? value) => _configService?.Set("ai.default_system_prompt", value);
 
@@ -84,6 +96,7 @@ public partial class SettingsWindowViewModel : ViewModelBase
     public SettingsWindowViewModel()
     {
         _configService = ServiceProviderBuilder.ServiceProvider?.GetRequiredService<ConfigService>();
+        _autostartManager = ServiceProviderBuilder.ServiceProvider?.GetRequiredService<IAutostartManager>();
 
         StartOnBoot = Convert.ToBoolean(_configService?.Get<bool>("general.start_on_boot"));
         AutoCheckForUpdates = Convert.ToBoolean(_configService?.Get<bool>("general.auto_check_for_updates"));
@@ -101,33 +114,32 @@ public partial class SettingsWindowViewModel : ViewModelBase
         var clickThroughHotkey = _configService?.Get<ushort[]>("control.click_through");
         if (chatWindowHotkey is { Length: > 1 })
         {
-            ChatWindowKey = PlatformKeyGestureConverter.ToPlatformString(new KeyGesture(KeyConvertor.ToKey((KeyCode)chatWindowHotkey[1]), KeyConvertor.ToKeyModifiers((ModifierMask)chatWindowHotkey[0])));
+            ChatWindowKey = PlatformKeyGestureConverter.ToPlatformString(new KeyGesture(KeyConvertor.ToKey((KeyCode)chatWindowHotkey[1]), KeyConvertor.ToKeyModifier((ModifierMask)chatWindowHotkey[0])));
         }
         if (screenshotHotKey is { Length: > 1 })
         {
-            ScreenshotKey = PlatformKeyGestureConverter.ToPlatformString(new KeyGesture(KeyConvertor.ToKey((KeyCode)screenshotHotKey[1]), KeyConvertor.ToKeyModifiers((ModifierMask)screenshotHotKey[0])));
+            ScreenshotKey = PlatformKeyGestureConverter.ToPlatformString(new KeyGesture(KeyConvertor.ToKey((KeyCode)screenshotHotKey[1]), KeyConvertor.ToKeyModifier((ModifierMask)screenshotHotKey[0])));
         }
         if (askAIHotKey is { Length: > 1 })
         {
-            AskAIKey = PlatformKeyGestureConverter.ToPlatformString(new KeyGesture(KeyConvertor.ToKey((KeyCode)askAIHotKey[1]), KeyConvertor.ToKeyModifiers((ModifierMask)askAIHotKey[0])));
+            AskAIKey = PlatformKeyGestureConverter.ToPlatformString(new KeyGesture(KeyConvertor.ToKey((KeyCode)askAIHotKey[1]), KeyConvertor.ToKeyModifier((ModifierMask)askAIHotKey[0])));
         }
         if (startOverHotkey is { Length: > 1 })
         {
-            StartOverKey = PlatformKeyGestureConverter.ToPlatformString(new KeyGesture(KeyConvertor.ToKey((KeyCode)startOverHotkey[1]), KeyConvertor.ToKeyModifiers((ModifierMask)startOverHotkey[0])));
+            StartOverKey = PlatformKeyGestureConverter.ToPlatformString(new KeyGesture(KeyConvertor.ToKey((KeyCode)startOverHotkey[1]), KeyConvertor.ToKeyModifier((ModifierMask)startOverHotkey[0])));
         }
         if (clickThroughHotkey is { Length: > 1 })
         {
-            ClickThroughKey = PlatformKeyGestureConverter.ToPlatformString(new KeyGesture(KeyConvertor.ToKey((KeyCode)clickThroughHotkey[1]), KeyConvertor.ToKeyModifiers((ModifierMask)clickThroughHotkey[0])));
+            ClickThroughKey = PlatformKeyGestureConverter.ToPlatformString(new KeyGesture(KeyConvertor.ToKey((KeyCode)clickThroughHotkey[1]), KeyConvertor.ToKeyModifier((ModifierMask)clickThroughHotkey[0])));
         }
         if (quitAppHotkey is { Length: > 1 })
         {
-            QuitAppKey = PlatformKeyGestureConverter.ToPlatformString(new KeyGesture(KeyConvertor.ToKey((KeyCode)quitAppHotkey[1]), KeyConvertor.ToKeyModifiers((ModifierMask)quitAppHotkey[0])));
+            QuitAppKey = PlatformKeyGestureConverter.ToPlatformString(new KeyGesture(KeyConvertor.ToKey((KeyCode)quitAppHotkey[1]), KeyConvertor.ToKeyModifier((ModifierMask)quitAppHotkey[0])));
         }
     }
 
     public void RecordHotKey(string functionName, GlobalHotkey hotkey)
     {
-        hotkey.SetFunctionBinding(FunctionRegistry.GetFunction(functionName));
         GlobalHotkeyManager.BindHotkey(functionName, hotkey);
         _configService?.Set("control." + functionName, new[] { (ushort)hotkey.Modifier, (ushort)hotkey.Key });
     }

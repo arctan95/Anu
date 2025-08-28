@@ -12,7 +12,6 @@ namespace Anu.Core.Services;
 /// </summary>
 public static class GlobalHotkeyManager
 {
-
     // Events
     public delegate void HotkeyEvent(GlobalHotkey hotkey);
 
@@ -78,13 +77,9 @@ public static class GlobalHotkeyManager
             if (RequiresModifierKey && hotkey.Modifier == ModifierMask.None)
                 continue;
 
-            if (e.RawEvent.Mask.HasFlag(hotkey.Modifier) && e.Data.KeyCode == hotkey.Key)
+            if (hotkey.TryInvoke(e))
             {
-                if (hotkey.CanExecute)
-                {
-                    hotkey.Callback?.Invoke();
-                    HotkeyFired?.Invoke(hotkey);
-                }
+                HotkeyFired?.Invoke(hotkey);
             }
         }
     }
@@ -97,10 +92,11 @@ public static class GlobalHotkeyManager
     /// <param name="modifier">The modifier key. ALT Does not work.</param>
     /// <param name="key"></param>
     /// <param name="callback"></param>
+    /// <param name="detectDoubleTap"></param>
     /// <param name="canExecute"></param>
-    public static void BindHotkey(string functionName, ModifierMask modifier, KeyCode key, Action? callback, bool canExecute = true)
+    public static void BindHotkey(string functionName, ModifierMask modifier, KeyCode key, Action? callback,
+        bool detectDoubleTap = false, bool canExecute = true)
     {
-        BindHotkey(functionName, new GlobalHotkey(modifier, key, callback, canExecute));
+        BindHotkey(functionName, new GlobalHotkey(modifier, key, callback, detectDoubleTap, canExecute));
     }
-
 }

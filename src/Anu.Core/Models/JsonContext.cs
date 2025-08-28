@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+
 namespace Anu.Core.Models;
 
 [JsonSourceGenerationOptions(WriteIndented = true)]

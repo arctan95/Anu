@@ -10,10 +10,10 @@ using SharpHook.Native;
 
 namespace Anu.Core.Tools;
 
-public class InputTools
+public static class InputTools
 {
     private static readonly EventSimulator Simulator = new();
-    private static readonly ChatWindowViewModel? _chatWindowViewModel = ServiceProviderBuilder.ServiceProvider?.GetRequiredService<ChatWindowViewModel>();
+    private static readonly ChatWindowViewModel? ChatWindowViewModel = ServiceProviderBuilder.ServiceProvider?.GetRequiredService<ChatWindowViewModel>();
 
     public static readonly ChatTool TakeScreenshotTool = ChatTool.CreateFunctionTool(
         functionName: nameof(TakeScreenshot),
@@ -34,14 +34,14 @@ public class InputTools
         functionName: nameof(InputText),
         functionDescription: "Simulate text input. Prefer using this method for entering text instead of press keys.",
         functionParameters: BinaryData.FromString("""
-                                                  {
-                                                      "type": "object",
-                                                      "properties": {
-                                                          "text": { "type": "string", "description": "The text to input" }
-                                                        },
-                                                      "required": ["text"]
-                                                  }
-                                                  """)
+          {
+              "type": "object",
+              "properties": {
+                  "text": { "type": "string", "description": "The text to input" }
+                },
+              "required": ["text"]
+          }
+          """)
     );
 
 
@@ -49,25 +49,25 @@ public class InputTools
         functionName: nameof(GetAllKeyNames),
         functionDescription: "Get all available key names from SharpHook KeyCode"
     );
-    
+
     public static readonly ChatTool LongPressKeyTool = ChatTool.CreateFunctionTool(
         functionName: nameof(LongPressKey),
         functionDescription: "Simulate a key press and release after a specified duration (long press)",
         functionParameters: BinaryData.FromString("""
-              {
-                  "type": "object",
-                  "properties": {
-                      "key": {
-                          "type": "string",
-                          "description": "The key code to press (Use GetAllKeyNames to get SharpHook KeyCode)"
-                      },
-                      "duration_ms": {
-                          "type": "integer",
-                          "description": "The duration in milliseconds to hold the key before releasing"
-                      }
+          {
+              "type": "object",
+              "properties": {
+                  "key": {
+                      "type": "string",
+                      "description": "The key code to press (Use GetAllKeyNames to get SharpHook KeyCode)"
                   },
-                  "required": ["key", "duration_ms"]
-              }
+                  "duration_ms": {
+                      "type": "integer",
+                      "description": "The duration in milliseconds to hold the key before releasing"
+                  }
+                },
+              "required": ["key", "duration_ms"]
+          }
         """)
     );
 
@@ -76,37 +76,32 @@ public class InputTools
         functionDescription: "Simulate a key press and release",
         functionParameters: BinaryData.FromString("""
             {
-
-            "type": "object",
-            "properties": {
-
-                "key": {
-
-                    "type": "string",
-                    "description": "The key code to press (Use GetAllKeyNames to get SharpHook KeyCode)"
-                    }
-                },
+                "type": "object",
+                "properties": {
+                    "key": {
+                        "type": "string",
+                        "description": "The key code to press (Use GetAllKeyNames to get SharpHook KeyCode)"
+                            }
+                        },
                 "required": ["key"]
             }
-            """)
-        );
+        """)
+    );
 
     public static readonly ChatTool PressKeyCombinationTool = ChatTool.CreateFunctionTool(
         functionName: nameof(PressKeyCombination),
         functionDescription: "Simulate a key combination (modifier + key)",
         functionParameters: BinaryData.FromString("""
-            {
-
+        {
             "type": "object",
             "properties": {
-
                 "modifier": { "type": "string", "description": "Modifier key (Use GetAllKeyNames to get SharpHook KeyCode)" },
-                    "key": { "type": "string", "description": "Main key to press (Use GetAllKeyNames to get SharpHook KeyCode)" }
+                        "key": { "type": "string", "description": "Main key to press (Use GetAllKeyNames to get SharpHook KeyCode)" }
                 },
-                "required": ["modifier","key"]
-            }
-            """)
-        );
+            "required": ["modifier","key"]
+        }
+        """)
+    );
 
     public static readonly ChatTool DoubleClickTool = ChatTool.CreateFunctionTool(
         functionName: nameof(DoubleClick),
@@ -137,15 +132,15 @@ public class InputTools
         functionName: nameof(ClickAt),
         functionDescription: "Simulate a mouse left-click at the given coordinates",
         functionParameters: BinaryData.FromString("""
-                                                  {
-                                                      "type": "object",
-                                                      "properties": {
-                                                          "x": { "type": "integer", "description": "X coordinate" },
-                                                          "y": { "type": "integer", "description": "Y coordinate" }
-                                                      },
-                                                      "required": ["x", "y"]
-                                                  }
-                                                  """)
+          {
+              "type": "object",
+              "properties": {
+                  "x": { "type": "integer", "description": "X coordinate" },
+                      "y": { "type": "integer", "description": "Y coordinate" }
+                  },
+              "required": ["x", "y"]
+          }
+          """)
     );
 
 
@@ -153,74 +148,70 @@ public class InputTools
         functionName: nameof(ClickAndDrag),
         functionDescription: "Click and drag the mouse from a start coordinate to an end coordinate",
         functionParameters: BinaryData.FromString("""
-                                                      {
-
-                                                      "type": "object",
-                                                      "properties": {
-                                                            "startX": { "type": "integer", "description": "Starting X coordinate" },
-                                                            "startY": { "type": "integer", "description": "Starting Y coordinate" },
-                                                            "endX": { "type": "integer", "description": "Target X coordinate" },
-                                                            "endY": { "type": "integer", "description": "Target Y coordinate" }
-                                                          },
-                                                          "required": ["startX", "startY", "endX", "endY"]
-                                                      }
-                                                      """)
-        );
+          {
+              "type": "object",
+              "properties": {
+                  "startX": { "type": "integer", "description": "Starting X coordinate" },
+                    "startY": { "type": "integer", "description": "Starting Y coordinate" },
+                    "endX": { "type": "integer", "description": "Target X coordinate" },
+                    "endY": { "type": "integer", "description": "Target Y coordinate" }
+                  },
+              "required": ["startX", "startY", "endX", "endY"]
+          }
+        """)
+    );
 
     public static readonly ChatTool MoveMouseTool = ChatTool.CreateFunctionTool(
         functionName: nameof(MoveMouse),
         functionDescription: "Move mouse pointer to absolute coordinates",
         functionParameters: BinaryData.FromString("""
-            {
-                "type": "object",
-                "properties": {
-                        "x": { "type": "integer", "description": "X coordinate" },
+        {
+            "type": "object",
+            "properties": {
+
+                    "x": { "type": "integer", "description": "X coordinate" },
                         "y": { "type": "integer", "description": "Y coordinate" }
                     },
-                "required": ["x","y"]
-            }
-            """)
-        );
+            "required": ["x","y"]
+        }
+        """)
+    );
 
     public static readonly ChatTool MoveMouseRelativeTool = ChatTool.CreateFunctionTool(
         functionName: nameof(MoveMouseRelative),
         functionDescription: "Move mouse pointer relative to current position",
         functionParameters: BinaryData.FromString("""
             {
-
-            "type": "object",
-            "properties": {
-
-                "dx": { "type": "integer", "description": "Delta X" },
-                    "dy": { "type": "integer", "description": "Delta Y" }
+                "type": "object",
+                "properties": {
+                    "dx": { "type": "integer", "description": "Delta X" },
+                            "dy": { "type": "integer", "description": "Delta Y" }
                 },
                 "required": ["dx","dy"]
             }
-            """)
-        );
+        """)
+    );
 
     public static readonly ChatTool WheelMouseTool = ChatTool.CreateFunctionTool(
         functionName: nameof(WheelMouse),
         functionDescription: "Scroll mouse wheel",
         functionParameters: BinaryData.FromString("""
             {
-
-            "type": "object",
-            "properties": {
-
+                "type": "object",
+                "properties": {
                 "rotation": { "type": "integer", "description": "Rotation amount" },
-                    "direction": { "type": "string", "description": "Vertical or Horizontal" }
-                },
+                        "direction": { "type": "string", "description": "Vertical or Horizontal" }
+                    },
                 "required": ["rotation","direction"]
             }
-            """)
-        );
+        """)
+    );
 
     public static string GetCurrentCursorPosition()
     {
-        if (_chatWindowViewModel != null)
+        if (ChatWindowViewModel != null)
         {
-            return $"X:{_chatWindowViewModel.CursorPositionX}, Y:{_chatWindowViewModel.CursorPositionY}";
+            return $"X:{ChatWindowViewModel.CursorPositionX}, Y:{ChatWindowViewModel.CursorPositionY}";
         }
 
         return "Can't get cursor position";
@@ -228,9 +219,9 @@ public class InputTools
 
     public static string GetScreenSize()
     {
-        if (_chatWindowViewModel != null)
+        if (ChatWindowViewModel != null)
         {
-            return $"Screen:{_chatWindowViewModel.ScreenWidth}×{_chatWindowViewModel.ScreenHeight}";
+            return $"Screen:{ChatWindowViewModel.ScreenWidth}×{ChatWindowViewModel.ScreenHeight}";
         }
 
         return "Can't get screen size";
@@ -258,7 +249,7 @@ public class InputTools
         Simulator.SimulateKeyRelease(key);
         return $"{nameof(PressKey)}: {key}: {nameof(UioHookResult.Success)}";
     }
-    
+
     public static string LongPressKey(KeyCode key, int durationMs)
     {
         _ = Task.Run(async () =>
@@ -269,7 +260,7 @@ public class InputTools
         });
         return $"{nameof(LongPressKey)}: {key}: {nameof(UioHookResult.Success)}";
     }
-    
+
     public static string PressKeyCombination(KeyCode modifier, KeyCode key)
     {
         Simulator.SimulateKeyPress(modifier);
@@ -347,14 +338,14 @@ public class InputTools
         Simulator.SimulateMouseWheel(rotation, direction);
         return $"{nameof(WheelMouse)}: ({nameof(direction)}-{rotation}): {nameof(UioHookResult.Success)}";
     }
-    
+
     public static async Task<string> TakeScreenshot()
     {
         if (Application.Current is App app)
         {
-            if (_chatWindowViewModel != null)
+            if (ChatWindowViewModel != null)
             {
-                _chatWindowViewModel.ImageSource = await app.TakeScreenshotAsync();
+                ChatWindowViewModel.ImageSource = await app.TakeScreenshotAsync();
             }
         }
         return $"{nameof(TakeScreenshot)}: {nameof(UioHookResult.Success)}";
