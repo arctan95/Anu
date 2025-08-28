@@ -111,7 +111,7 @@ public partial class App : Application
                 });
                 // fix text ghosting in click-through mode by remove decorations
                 _chatWindow.SystemDecorations = _chatWindowViewModel.IgnoreMouseEvents ? SystemDecorations.None : SystemDecorations.Full;
-                _chatWindow.TransparencyLevelHint = _chatWindowViewModel.IgnoreMouseEvents?[WindowTransparencyLevel.Transparent] : [WindowTransparencyLevel.AcrylicBlur, WindowTransparencyLevel.Blur];
+                _chatWindow.TransparencyLevelHint = _chatWindowViewModel.IgnoreMouseEvents ? [WindowTransparencyLevel.Transparent] : [WindowTransparencyLevel.AcrylicBlur, WindowTransparencyLevel.Blur];
             });
         }
     }
@@ -277,7 +277,7 @@ public partial class App : Application
                     Background = Brushes.Transparent,
                     ExtendClientAreaToDecorationsHint = true,
                     SystemDecorations = forceActivated ? SystemDecorations.Full : SystemDecorations.None,
-                    TransparencyLevelHint = forceActivated?[WindowTransparencyLevel.AcrylicBlur, WindowTransparencyLevel.Blur] : [WindowTransparencyLevel.Transparent],
+                    TransparencyLevelHint = forceActivated ? [WindowTransparencyLevel.AcrylicBlur, WindowTransparencyLevel.Blur] : [WindowTransparencyLevel.Transparent],
                     DataContext = _chatWindowViewModel
                 };
 
@@ -378,7 +378,6 @@ public partial class App : Application
             Dispatcher.UIThread.InvokeAsync(() =>
             {
                 _chatWindow.Activate();
-                _chatWindow.Focus();
             });
         }
     }
