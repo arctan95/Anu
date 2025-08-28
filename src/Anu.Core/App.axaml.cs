@@ -369,6 +369,7 @@ public partial class App : Application
                 _chatWindowViewModel.StopAIResponse();
             }
         });
+        AIChat.ResetConversation();
     }
     public void ForceActivateChatWindow()
     {
