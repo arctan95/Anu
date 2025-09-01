@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Anu.Core.Services;
 using Anu.Core.ViewModels;
@@ -48,6 +49,27 @@ public class InputTools
     public static readonly ChatTool GetAllKeyNamesTool = ChatTool.CreateFunctionTool(
         functionName: nameof(GetAllKeyNames),
         functionDescription: "Get all available key names from SharpHook KeyCode"
+    );
+    
+    public static readonly ChatTool LongPressKeyTool = ChatTool.CreateFunctionTool(
+        functionName: nameof(LongPressKey),
+        functionDescription: "Simulate a key press and release after a specified duration (long press)",
+        functionParameters: BinaryData.FromString("""
+              {
+                  "type": "object",
+                  "properties": {
+                      "key": {
+                          "type": "string",
+                          "description": "The key code to press (Use GetAllKeyNames to get SharpHook KeyCode)"
+                      },
+                      "duration_ms": {
+                          "type": "integer",
+                          "description": "The duration in milliseconds to hold the key before releasing"
+                      }
+                  },
+                  "required": ["key", "duration_ms"]
+              }
+        """)
     );
 
     public static readonly ChatTool PressKeyTool = ChatTool.CreateFunctionTool(
@@ -237,6 +259,18 @@ public class InputTools
         Simulator.SimulateKeyRelease(key);
         return $"{nameof(PressKey)}: {key}: {nameof(UioHookResult.Success)}";
     }
+    
+    public static string LongPressKey(KeyCode key, int durationMs)
+    {
+        _ = Task.Run(async () =>
+        {
+            Simulator.SimulateKeyPress(key);
+            await Task.Delay(durationMs);
+            Simulator.SimulateKeyRelease(key);
+        });
+        return $"{nameof(LongPressKey)}: {key}: {nameof(UioHookResult.Success)}";
+    }
+    
     public static string PressKeyCombination(KeyCode modifier, KeyCode key)
     {
         Simulator.SimulateKeyPress(modifier);

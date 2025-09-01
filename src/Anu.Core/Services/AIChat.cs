@@ -227,6 +227,7 @@ public class AIChat
                 InputTools.GetAllKeyNamesTool,
                 InputTools.InputTextTool,
                 InputTools.PressKeyTool,
+                InputTools.LongPressKeyTool,
                 InputTools.PressKeyCombinationTool,
                 InputTools.LeftClickTool,
                 InputTools.RightClickTool,
@@ -377,6 +378,19 @@ public class AIChat
                                                             Enum.TryParse<KeyCode>(key.GetString(), out var keyEnum))
                                                         {
                                                             string result = InputTools.PressKey(keyEnum);
+                                                            _messages.Add(new ToolChatMessage(toolCall.Id, result));
+                                                        }
+                                                        break;
+                                                    }
+                                                
+                                                case nameof(InputTools.LongPressKey):
+                                                    {
+                                                        using JsonDocument argumentsJson = JsonDocument.Parse(toolCall.FunctionArguments);
+                                                        if (argumentsJson.RootElement.TryGetProperty("key", out JsonElement key) &&
+                                                            argumentsJson.RootElement.TryGetProperty("duration_ms", out JsonElement durationMs) &&
+                                                            Enum.TryParse<KeyCode>(key.GetString(), out var keyEnum))
+                                                        {
+                                                            string result = InputTools.LongPressKey(keyEnum, durationMs.GetInt32());
                                                             _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         }
                                                         break;
