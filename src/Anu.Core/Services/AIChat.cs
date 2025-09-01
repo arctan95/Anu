@@ -8,10 +8,10 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Anu.Core.Models;
 using Anu.Core.Tools;
 using Avalonia.Media.Imaging;
 using Anu.Core.ViewModels;
-using Avalonia;
 using Microsoft.Extensions.DependencyInjection;
 using OpenAI;
 using OpenAI.Chat;
@@ -27,6 +27,7 @@ public class AIChat
     private static readonly Dictionary<string, CancellationTokenSource> Cancellations = new();
     private static readonly List<ChatMessage> _messages = new();
     private static bool _initialized;
+    private static readonly OmniParserClient _omniClient = new();
 
     public class StreamingChatToolCallsBuilder
     {
@@ -279,6 +280,17 @@ public class AIChat
                     _chatWindowViewModel.LastRequestId = requestId;
                     _chatWindowViewModel.MessageRequested = true;
 
+                    if (_chatWindowViewModel.Reasoning)
+                    {
+                        if (_chatWindowViewModel.ImageSource != null)
+                        {
+                            var userParts = new List<ChatMessageContentPart>();
+                            var parsedImage = await FillUserMessageWithParsedImage(userParts, _chatWindowViewModel.ImageSource);
+                            _chatWindowViewModel.ImageSource = BytesToBitmap(parsedImage);
+                            _messages.Add(new UserChatMessage(userParts));
+                        }
+                    }
+
                     AsyncCollectionResult<StreamingChatCompletionUpdate>? completionUpdates =
                         _chatClient?.CompleteChatStreamingAsync(_messages, options, cancelToken);
 
@@ -296,9 +308,6 @@ public class AIChat
                             // Build the tool calls as new updates arrive.
                             foreach (StreamingChatToolCallUpdate toolCallUpdate in completionUpdate.ToolCallUpdates)
                             {
-                                _chatWindowViewModel.UpdateText(Environment.NewLine + Environment.NewLine);
-                                _chatWindowViewModel.UpdateText($"[TOOL CALL]: {toolCallUpdate.FunctionName}: {toolCallUpdate.FunctionArgumentsUpdate}");
-                                _chatWindowViewModel.UpdateText(Environment.NewLine + Environment.NewLine);
                                 toolCallsBuilder.Append(toolCallUpdate);
                             }
 
@@ -314,140 +323,168 @@ public class AIChat
                                     }
                                 case ChatFinishReason.ToolCalls:
                                     {
-                                        // First, collect the accumulated function arguments into complete tool calls to be processed
-                                        IReadOnlyList<ChatToolCall> toolCalls = toolCallsBuilder.Build();
-
-                                        // Next, add the assistant message with tool calls to the conversation history.
-                                        AssistantChatMessage assistantMessage = new(toolCalls);
-
-                                        if (contentBuilder.Length > 0)
+                                        if (_chatWindowViewModel.ComputerUse)
                                         {
-                                            assistantMessage.Content.Add(ChatMessageContentPart.CreateTextPart(contentBuilder.ToString()));
-                                        }
-                                        _messages.Add(assistantMessage);
+                                            // First, collect the accumulated function arguments into complete tool calls to be processed
+                                            IReadOnlyList<ChatToolCall> toolCalls = toolCallsBuilder.Build();
 
-                                        // Then, add a new tool message for each tool call to be resolved.
-                                        foreach (ChatToolCall toolCall in toolCalls)
-                                        {
+                                            // Next, add the assistant message with tool calls to the conversation history.
+                                            AssistantChatMessage assistantMessage = new(toolCalls);
 
-                                            switch (toolCall.FunctionName)
+                                            if (contentBuilder.Length > 0)
                                             {
-                                                case nameof(InputTools.GetScreenSize):
+                                                assistantMessage.Content.Add(
+                                                    ChatMessageContentPart.CreateTextPart(contentBuilder.ToString()));
+                                            }
+
+                                            _messages.Add(assistantMessage);
+
+                                            // Then, add a new tool message for each tool call to be resolved.
+                                            foreach (ChatToolCall toolCall in toolCalls)
+                                            {
+
+                                                _chatWindowViewModel.UpdateText(Environment.NewLine + Environment.NewLine);
+                                                _chatWindowViewModel.UpdateText(
+                                                    $"[TOOL CALL]: {toolCall.FunctionName}: {toolCall.FunctionArguments}");
+                                                _chatWindowViewModel.UpdateText(Environment.NewLine + Environment.NewLine);
+
+                                                switch (toolCall.FunctionName)
+                                                {
+                                                    case nameof(InputTools.GetScreenSize):
                                                     {
                                                         string size = InputTools.GetScreenSize();
                                                         _messages.Add(new ToolChatMessage(toolCall.Id, size));
                                                         break;
                                                     }
 
-                                                case nameof(InputTools.GetCurrentCursorPosition):
+                                                    case nameof(InputTools.GetCurrentCursorPosition):
                                                     {
                                                         string position = InputTools.GetCurrentCursorPosition();
                                                         _messages.Add(new ToolChatMessage(toolCall.Id, position));
                                                         break;
                                                     }
 
-                                                case nameof(InputTools.GetAllKeyNames):
+                                                    case nameof(InputTools.GetAllKeyNames):
                                                     {
                                                         string allKeys = InputTools.GetAllKeyNames();
                                                         _messages.Add(new ToolChatMessage(toolCall.Id, allKeys));
                                                         break;
                                                     }
 
-                                                case nameof(InputTools.InputText):
+                                                    case nameof(InputTools.InputText):
                                                     {
-                                                        using JsonDocument argumentsJson = JsonDocument.Parse(toolCall.FunctionArguments);
-                                                        if (argumentsJson.RootElement.TryGetProperty("text", out JsonElement text))
+                                                        using JsonDocument argumentsJson =
+                                                            JsonDocument.Parse(toolCall.FunctionArguments);
+                                                        if (argumentsJson.RootElement.TryGetProperty("text",
+                                                                out JsonElement text))
                                                         {
                                                             string result = InputTools.InputText(text.GetString());
                                                             _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         }
+
                                                         break;
                                                     }
 
 
-                                                case nameof(InputTools.PressKey):
+                                                    case nameof(InputTools.PressKey):
                                                     {
-                                                        using JsonDocument argumentsJson = JsonDocument.Parse(toolCall.FunctionArguments);
-                                                        if (argumentsJson.RootElement.TryGetProperty("key", out JsonElement key) &&
+                                                        using JsonDocument argumentsJson =
+                                                            JsonDocument.Parse(toolCall.FunctionArguments);
+                                                        if (argumentsJson.RootElement.TryGetProperty("key",
+                                                                out JsonElement key) &&
                                                             Enum.TryParse<KeyCode>(key.GetString(), out var keyEnum))
                                                         {
                                                             string result = InputTools.PressKey(keyEnum);
                                                             _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         }
+
                                                         break;
                                                     }
-                                                
-                                                case nameof(InputTools.LongPressKey):
+
+                                                    case nameof(InputTools.LongPressKey):
                                                     {
-                                                        using JsonDocument argumentsJson = JsonDocument.Parse(toolCall.FunctionArguments);
-                                                        if (argumentsJson.RootElement.TryGetProperty("key", out JsonElement key) &&
-                                                            argumentsJson.RootElement.TryGetProperty("duration_ms", out JsonElement durationMs) &&
+                                                        using JsonDocument argumentsJson =
+                                                            JsonDocument.Parse(toolCall.FunctionArguments);
+                                                        if (argumentsJson.RootElement.TryGetProperty("key",
+                                                                out JsonElement key) &&
+                                                            argumentsJson.RootElement.TryGetProperty("duration_ms",
+                                                                out JsonElement durationMs) &&
                                                             Enum.TryParse<KeyCode>(key.GetString(), out var keyEnum))
                                                         {
-                                                            string result = InputTools.LongPressKey(keyEnum, durationMs.GetInt32());
+                                                            string result = InputTools.LongPressKey(keyEnum,
+                                                                durationMs.GetInt32());
                                                             _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         }
+
                                                         break;
                                                     }
 
-                                                case nameof(InputTools.PressKeyCombination):
+                                                    case nameof(InputTools.PressKeyCombination):
                                                     {
-                                                        using JsonDocument argumentsJson = JsonDocument.Parse(toolCall.FunctionArguments);
+                                                        using JsonDocument argumentsJson =
+                                                            JsonDocument.Parse(toolCall.FunctionArguments);
 
-                                                        if (argumentsJson.RootElement.TryGetProperty("modifier", out JsonElement modifierElement) &&
-                                                            argumentsJson.RootElement.TryGetProperty("key", out JsonElement keyElement) &&
-                                                            Enum.TryParse<KeyCode>(modifierElement.GetString(), out var modifierEnum) &&
+                                                        if (argumentsJson.RootElement.TryGetProperty("modifier",
+                                                                out JsonElement modifierElement) &&
+                                                            argumentsJson.RootElement.TryGetProperty("key",
+                                                                out JsonElement keyElement) &&
+                                                            Enum.TryParse<KeyCode>(modifierElement.GetString(),
+                                                                out var modifierEnum) &&
                                                             Enum.TryParse<KeyCode>(keyElement.GetString(), out var keyEnum))
                                                         {
-                                                            string result = InputTools.PressKeyCombination(modifierEnum, keyEnum);
+                                                            string result =
+                                                                InputTools.PressKeyCombination(modifierEnum, keyEnum);
                                                             _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         }
                                                         else
                                                         {
-                                                            _messages.Add(new ToolChatMessage(toolCall.Id, "Invalid key combination"));
+                                                            _messages.Add(new ToolChatMessage(toolCall.Id,
+                                                                "Invalid key combination"));
                                                         }
+
                                                         break;
                                                     }
 
 
-                                                case nameof(InputTools.LeftClick):
+                                                    case nameof(InputTools.LeftClick):
                                                     {
                                                         string result = InputTools.LeftClick();
                                                         _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         break;
                                                     }
 
-                                                case nameof(InputTools.RightClick):
+                                                    case nameof(InputTools.RightClick):
                                                     {
                                                         string result = InputTools.RightClick();
                                                         _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         break;
                                                     }
 
-                                                case nameof(InputTools.MiddleClick):
+                                                    case nameof(InputTools.MiddleClick):
                                                     {
                                                         string result = InputTools.MiddleClick();
                                                         _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         break;
                                                     }
 
-                                                case nameof(InputTools.DoubleClick):
+                                                    case nameof(InputTools.DoubleClick):
                                                     {
                                                         string result = InputTools.DoubleClick();
                                                         _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         break;
                                                     }
 
-                                                case nameof(InputTools.TripleClick):
+                                                    case nameof(InputTools.TripleClick):
                                                     {
                                                         string result = InputTools.TripleClick();
                                                         _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         break;
                                                     }
 
-                                                case nameof(InputTools.ClickAt):
+                                                    case nameof(InputTools.ClickAt):
                                                     {
-                                                        using JsonDocument argumentsJson = JsonDocument.Parse(toolCall.FunctionArguments);
+                                                        using JsonDocument argumentsJson =
+                                                            JsonDocument.Parse(toolCall.FunctionArguments);
                                                         if (argumentsJson.RootElement.TryGetProperty("x",
                                                                 out JsonElement x) &&
                                                             argumentsJson.RootElement.TryGetProperty("y",
@@ -456,16 +493,22 @@ public class AIChat
                                                             string result = InputTools.ClickAt(x.GetInt16(), y.GetInt16());
                                                             _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         }
+
                                                         break;
                                                     }
 
-                                                case nameof(InputTools.ClickAndDrag):
+                                                    case nameof(InputTools.ClickAndDrag):
                                                     {
-                                                        using JsonDocument argumentsJson = JsonDocument.Parse(toolCall.FunctionArguments);
-                                                        if (argumentsJson.RootElement.TryGetProperty("startX", out JsonElement startX) &&
-                                                            argumentsJson.RootElement.TryGetProperty("startY", out JsonElement startY) &&
-                                                            argumentsJson.RootElement.TryGetProperty("endX", out JsonElement endX) &&
-                                                            argumentsJson.RootElement.TryGetProperty("endY", out JsonElement endY))
+                                                        using JsonDocument argumentsJson =
+                                                            JsonDocument.Parse(toolCall.FunctionArguments);
+                                                        if (argumentsJson.RootElement.TryGetProperty("startX",
+                                                                out JsonElement startX) &&
+                                                            argumentsJson.RootElement.TryGetProperty("startY",
+                                                                out JsonElement startY) &&
+                                                            argumentsJson.RootElement.TryGetProperty("endX",
+                                                                out JsonElement endX) &&
+                                                            argumentsJson.RootElement.TryGetProperty("endY",
+                                                                out JsonElement endY))
                                                         {
                                                             string result = InputTools.ClickAndDrag(
                                                                 startX.GetInt16(), startY.GetInt16(),
@@ -473,63 +516,85 @@ public class AIChat
                                                             );
                                                             _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         }
+
                                                         break;
                                                     }
 
-                                                case nameof(InputTools.MoveMouse):
+                                                    case nameof(InputTools.MoveMouse):
                                                     {
-                                                        using JsonDocument argumentsJson = JsonDocument.Parse(toolCall.FunctionArguments);
-                                                        if (argumentsJson.RootElement.TryGetProperty("x", out JsonElement x) &&
-                                                            argumentsJson.RootElement.TryGetProperty("y", out JsonElement y))
+                                                        using JsonDocument argumentsJson =
+                                                            JsonDocument.Parse(toolCall.FunctionArguments);
+                                                        if (argumentsJson.RootElement.TryGetProperty("x",
+                                                                out JsonElement x) &&
+                                                            argumentsJson.RootElement.TryGetProperty("y",
+                                                                out JsonElement y))
                                                         {
-                                                            string result = InputTools.MoveMouse(x.GetInt16(), y.GetInt16());
+                                                            string result =
+                                                                InputTools.MoveMouse(x.GetInt16(), y.GetInt16());
                                                             _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         }
+
                                                         break;
                                                     }
 
-                                                case nameof(InputTools.MoveMouseRelative):
+                                                    case nameof(InputTools.MoveMouseRelative):
                                                     {
-                                                        using JsonDocument argumentsJson = JsonDocument.Parse(toolCall.FunctionArguments);
-                                                        if (argumentsJson.RootElement.TryGetProperty("dx", out JsonElement dx) &&
-                                                            argumentsJson.RootElement.TryGetProperty("dy", out JsonElement dy))
+                                                        using JsonDocument argumentsJson =
+                                                            JsonDocument.Parse(toolCall.FunctionArguments);
+                                                        if (argumentsJson.RootElement.TryGetProperty("dx",
+                                                                out JsonElement dx) &&
+                                                            argumentsJson.RootElement.TryGetProperty("dy",
+                                                                out JsonElement dy))
                                                         {
-                                                            string result = InputTools.MoveMouseRelative(dx.GetInt16(), dy.GetInt16());
+                                                            string result =
+                                                                InputTools.MoveMouseRelative(dx.GetInt16(), dy.GetInt16());
                                                             _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         }
+
                                                         break;
                                                     }
 
-                                                case nameof(InputTools.WheelMouse):
+                                                    case nameof(InputTools.WheelMouse):
                                                     {
-                                                        using JsonDocument argumentsJson = JsonDocument.Parse(toolCall.FunctionArguments);
-                                                        if (argumentsJson.RootElement.TryGetProperty("rotation", out JsonElement rotation) &&
-                                                            argumentsJson.RootElement.TryGetProperty("direction", out JsonElement direction) &&
-                                                            Enum.TryParse<MouseWheelScrollDirection>(direction.GetString(), out var directionEnum))
+                                                        using JsonDocument argumentsJson =
+                                                            JsonDocument.Parse(toolCall.FunctionArguments);
+                                                        if (argumentsJson.RootElement.TryGetProperty("rotation",
+                                                                out JsonElement rotation) &&
+                                                            argumentsJson.RootElement.TryGetProperty("direction",
+                                                                out JsonElement direction) &&
+                                                            Enum.TryParse<MouseWheelScrollDirection>(direction.GetString(),
+                                                                out var directionEnum))
                                                         {
-                                                            string result = InputTools.WheelMouse(rotation.GetInt16(), directionEnum);
+                                                            string result = InputTools.WheelMouse(rotation.GetInt16(),
+                                                                directionEnum);
                                                             _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         }
+
                                                         break;
                                                     }
 
-                                                case nameof(InputTools.TakeScreenshot):
+                                                    case nameof(InputTools.TakeScreenshot):
                                                     {
                                                         string result = await InputTools.TakeScreenshot();
                                                         _messages.Add(new ToolChatMessage(toolCall.Id, result));
                                                         if (_chatWindowViewModel.ImageSource != null)
                                                         {
-                                                            _messages.Add(new UserChatMessage(CreateImagePart(_chatWindowViewModel.ImageSource)));
+                                                            _messages.Add(new UserChatMessage(
+                                                                CreateImagePart(
+                                                                    ToBinaryData(_chatWindowViewModel.ImageSource))));
                                                         }
+
                                                         break;
                                                     }
 
-                                                default:
+                                                    default:
                                                     {
-                                                        throw new NotImplementedException($"Tool {toolCall.FunctionName} is not implemented.");
+                                                        throw new NotImplementedException(
+                                                            $"Tool {toolCall.FunctionName} is not implemented.");
                                                     }
-                                            }
+                                                }
 
+                                            }
                                         }
 
                                         requiresAction = true;
@@ -548,9 +613,12 @@ public class AIChat
                 StopAIResponseStream(_chatWindowViewModel.LastRequestId);
             }
         }
-        
-        if (_chatWindowViewModel != null) 
-            _chatWindowViewModel.ImageSource = null;
+    }
+
+    private static async Task<OmniParserResponse> ParseImage(Bitmap bitmap)
+    {
+        var omniparserResponse = await _omniClient.ParseImageAsync(ToBinaryData(bitmap).ToArray());
+        return omniparserResponse;
     }
 
     public static async Task Ask(bool enableConversationMemory = false)
@@ -581,7 +649,7 @@ public class AIChat
 
         if (_chatWindowViewModel?.ImageSource != null)
         {
-            userParts.Add(CreateImagePart(_chatWindowViewModel.ImageSource));
+            userParts.Add(CreateImagePart(ToBinaryData(_chatWindowViewModel.ImageSource)));
         }
         var userMessage = new UserChatMessage(userParts.ToArray());
 
@@ -591,15 +659,33 @@ public class AIChat
         }
         await Ask(systemMessage, userMessage);
     }
-    
+
+    private static async Task<byte[]> FillUserMessageWithParsedImage(List<ChatMessageContentPart> userParts, Bitmap bitmap)
+    {
+        var omniparserResponse = await ParseImage(bitmap);
+        var parsedImage = Convert.FromBase64String(omniparserResponse.SomImageBase64);
+        userParts.Add(ChatMessageContentPart.CreateTextPart(_omniClient.GetParsedScreenInfo(omniparserResponse)));
+        userParts.Add(CreateImagePart(BinaryData.FromBytes(parsedImage)));
+
+        return parsedImage;
+    }
+
+
     public static void ResetConversation()
     {
         _messages.Clear();
     }
-
-    private static ChatMessageContentPart CreateImagePart(Bitmap bitmap)
+    
+    private static ChatMessageContentPart CreateImagePart(BinaryData imageBytes)
     {
-        return ChatMessageContentPart.CreateImagePart(ToBinaryData(bitmap), "image/png");
+        return ChatMessageContentPart.CreateImagePart(imageBytes, "image/png");
+    }
+    
+    public static Bitmap BytesToBitmap(byte[] imageBytes)
+    {
+        using var memoryStream = new MemoryStream(imageBytes);
+        Bitmap bitmap = new Bitmap(memoryStream);
+        return bitmap;
     }
     
     private static BinaryData ToBinaryData(Bitmap bitmap)

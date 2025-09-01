@@ -7,13 +7,13 @@
   <Style Selector=".Markdown_Avalonia_MarkdownViewer ctxt|CTextBlock">
     <Style.Setters>
       <Setter Property="FontSize"   Value="14" />
-      <Setter Property="Foreground" Value="White" />
+      <Setter Property="Foreground" Value="Black" />
       <Setter Property="Margin"     Value="0,5" />
     </Style.Setters>
   </Style>
   <Style Selector=".Markdown_Avalonia_MarkdownViewer TextBlock">
     <Style.Setters>
-      <Setter Property="Foreground" Value="White" />
+      <Setter Property="Foreground" Value="Black" />
       <Setter Property="FontSize"   Value="14" />
     </Style.Setters>
   </Style>
@@ -21,7 +21,7 @@
   <Style Selector=".Markdown_Avalonia_MarkdownViewer ctxt|CTextBlock.Heading1">
     <Style.Setters>
       <Setter Property="FontSize"   Value="42" />
-      <Setter Property="Foreground" Value="White" />
+      <Setter Property="Foreground" Value="Black" />
       <Setter Property="FontWeight" Value="Light" />
     </Style.Setters>
   </Style>
@@ -29,7 +29,7 @@
   <Style Selector=".Markdown_Avalonia_MarkdownViewer ctxt|CTextBlock.Heading2">
     <Style.Setters>
       <Setter Property="FontSize"   Value="20" />
-      <Setter Property="Foreground" Value="White" />
+      <Setter Property="Foreground" Value="Black" />
       <Setter Property="FontWeight" Value="Light" />
     </Style.Setters>
   </Style>
@@ -37,7 +37,7 @@
   <Style Selector=".Markdown_Avalonia_MarkdownViewer ctxt|CTextBlock.Heading3">
     <Style.Setters>
       <Setter Property="FontSize"   Value="20" />
-      <Setter Property="Foreground" Value="White" />
+      <Setter Property="Foreground" Value="Black" />
       <Setter Property="FontWeight" Value="Light" />
     </Style.Setters>
   </Style>
@@ -45,7 +45,7 @@
   <Style Selector=".Markdown_Avalonia_MarkdownViewer ctxt|CTextBlock.Heading4">
     <Style.Setters>
       <Setter Property="FontSize"   Value="14" />
-      <Setter Property="Foreground" Value="White" />
+      <Setter Property="Foreground" Value="Black" />
       <Setter Property="FontWeight" Value="Light" />
     </Style.Setters>
   </Style>
@@ -61,11 +61,11 @@
   <Style Selector=".Markdown_Avalonia_MarkdownViewer TextBlock.CodeBlock">
     <Style.Setters>
       <Setter Property="FontFamily"      Value="menlo,monaco,consolas,droid sans mono,inconsolata,courier new,monospace,dejavu sans mono"/>
-      <Setter Property="Foreground"      Value="White"/>
+      <Setter Property="Foreground"      Value="Black"/>
     </Style.Setters>
   </Style>
   <Style Selector=".Markdown_Avalonia_MarkdownViewer avedit|TextEditor">
-    <Setter Property="Foreground"          Value="White" />
+    <Setter Property="Foreground"          Value="Black" />
     <Setter Property="SyntaxHighlighting" Value=""/>
   </Style>
   <Style Selector=".Markdown_Avalonia_MarkdownViewer Border.NoContainer">
@@ -76,14 +76,14 @@
 
   <Style Selector=".Markdown_Avalonia_MarkdownViewer ctxt|CCode">
     <Style.Setters>
-      <Setter Property="Foreground" Value="White" />
+      <Setter Property="Foreground" Value="Black" />
       <Setter Property="Background" Value="Transparent" />
     </Style.Setters>
   </Style>
   
   <Style Selector=".Markdown_Avalonia_MarkdownViewer Label.LangInfo">
     <Setter Property="BorderBrush" Value="DarkGray" />
-    <Setter Property="Foreground" Value="White" />
+    <Setter Property="Foreground" Value="Black" />
   </Style>
 
 
@@ -160,7 +160,7 @@
 
   <Style Selector=".Markdown_Avalonia_MarkdownViewer Border.OddTableRow">
     <Style.Setters>
-      <Setter Property="Background" Value="White"/>
+      <Setter Property="Background" Value="Black"/>
     </Style.Setters>
   </Style>
 

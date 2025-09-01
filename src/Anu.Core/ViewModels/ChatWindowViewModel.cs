@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Media.Imaging;
@@ -27,9 +28,9 @@ public partial class ChatWindowViewModel : ViewModelBase
     [ObservableProperty]
     private Vector _markdownScrollValue = Vector.Zero;
     [ObservableProperty]
-    private string _mdText = "What can I help with?";
+    private string _mdText = String.Empty;
     [ObservableProperty]
-    private string _chatBoxOpacity = "0.4";
+    private string _chatBoxOpacity = "0.5";
     [ObservableProperty]
     private bool _followPointer;
     [ObservableProperty]
@@ -41,9 +42,9 @@ public partial class ChatWindowViewModel : ViewModelBase
     [ObservableProperty]
     private double _screenHeight;
     [ObservableProperty]
-    private bool _chatWithScreenshot;
+    private bool _reasoning;
     [ObservableProperty]
-    private bool _readClipboardImage;
+    private bool _computerUse;
     [ObservableProperty]
     private bool _contentProtection = true;
     [ObservableProperty]
@@ -51,49 +52,37 @@ public partial class ChatWindowViewModel : ViewModelBase
     [ObservableProperty]
     private bool _ignoreMouseEvents = true;
 
-    partial void OnChatWithScreenshotChanged(bool value)
+    public async Task ReadClipboardImage()
     {
-        if (!value)
+        if (Application.Current is App app)
         {
-            ImageSource = null;
-        }
-        else
-        {
-            ReadClipboardImage = false;
+            ImageSource = await app.LoadClipboardImageAsync(); 
         }
     }
 
-    partial void OnReadClipboardImageChanged(bool value)
+    public async Task TakeScreenshot()
     {
-        if (value)
+        if (Application.Current is App app)
         {
-            ChatWithScreenshot = false;
+            ImageSource = await app.TakeScreenshotAsync();
         }
     }
 
     public async Task AskQuestion(bool enableConversationMemory = false)
     {
-        Bitmap? image = null;
-        if (image == null)
-        {
-            if (Application.Current is App app)
-            {
-                if (ChatWithScreenshot)
-                {
-                    image = await app.TakeScreenshotAsync();
-                }
-                else if (ReadClipboardImage)
-                {
-                    image = await app.LoadClipboardImageAsync();
-                }
-            }
-        }
-
-        if (ImageSource == null)
-        {
-            ImageSource = image;
-        }
         await AIChat.Ask(enableConversationMemory);
+    }
+
+    public async Task SendOrStop()
+    {
+        if (MessageRequested)
+        {
+            StopAIResponse();
+        }
+        else
+        {
+            await SendMessage();
+        }
     }
 
     public void StopAIResponse()

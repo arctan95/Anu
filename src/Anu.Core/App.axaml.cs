@@ -276,8 +276,8 @@ public partial class App : Application
                     ShowActivated = forceActivated,
                     Background = Brushes.Transparent,
                     ExtendClientAreaToDecorationsHint = true,
-                    SystemDecorations = forceActivated ? SystemDecorations.Full : SystemDecorations.None,
-                    TransparencyLevelHint = forceActivated ? [WindowTransparencyLevel.AcrylicBlur, WindowTransparencyLevel.Blur] : [WindowTransparencyLevel.Transparent],
+                    ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.NoChrome,
+                    SystemDecorations = forceActivated ? SystemDecorations.Full : SystemDecorations.None,                    TransparencyLevelHint = forceActivated ? [WindowTransparencyLevel.AcrylicBlur, WindowTransparencyLevel.Blur] : [WindowTransparencyLevel.Transparent],
                     DataContext = _chatWindowViewModel
                 };
 
@@ -363,7 +363,7 @@ public partial class App : Application
         {
             if (_chatWindowViewModel != null)
             {
-                _chatWindowViewModel.MdText = "What can I help with?";
+                _chatWindowViewModel.MdText = String.Empty;
                 _chatWindowViewModel.ImageSource = null;
                 _chatWindowViewModel.UserMessage = string.Empty;
                 _chatWindowViewModel.StopAIResponse();
