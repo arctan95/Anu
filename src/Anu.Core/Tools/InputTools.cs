@@ -4,7 +4,7 @@ using Anu.Core.Services;
 using Anu.Core.ViewModels;
 using Avalonia;
 using Microsoft.Extensions.DependencyInjection;
-using OpenAI.Chat;
+using OpenAI.Responses;
 using SharpHook;
 using SharpHook.Native;
 
@@ -15,22 +15,28 @@ public static class InputTools
     private static readonly EventSimulator Simulator = new();
     private static readonly ChatWindowViewModel? ChatWindowViewModel = ServiceProviderBuilder.ServiceProvider?.GetRequiredService<ChatWindowViewModel>();
 
-    public static readonly ChatTool TakeScreenshotTool = ChatTool.CreateFunctionTool(
+    public static readonly ResponseTool TakeScreenshotTool = ResponseTool.CreateFunctionTool(
         functionName: nameof(TakeScreenshot),
-        functionDescription: "Take a screenshot of the screen."
+        functionDescription: "Take a screenshot of the screen.",
+        functionParameters: null,
+        strictModeEnabled: true
     );
 
-    public static readonly ChatTool GetCurrentCursorPositionTool = ChatTool.CreateFunctionTool(
+    public static readonly ResponseTool GetCurrentCursorPositionTool = ResponseTool.CreateFunctionTool(
         functionName: nameof(GetCurrentCursorPosition),
-        functionDescription: "Get the current cursor position"
+        functionDescription: "Get the current cursor position",
+        functionParameters: null,
+        strictModeEnabled: true
     );
 
-    public static readonly ChatTool GetScreenSizeTool = ChatTool.CreateFunctionTool(
+    public static readonly ResponseTool GetScreenSizeTool = ResponseTool.CreateFunctionTool(
         functionName: nameof(GetScreenSize),
-        functionDescription: "Get the screen size"
+        functionDescription: "Get the screen size",
+        functionParameters: null,
+        strictModeEnabled: true
     );
 
-    public static readonly ChatTool InputTextTool = ChatTool.CreateFunctionTool(
+    public static readonly ResponseTool InputTextTool = ResponseTool.CreateFunctionTool(
         functionName: nameof(InputText),
         functionDescription: "Simulate text input. Prefer using this method for entering text instead of press keys.",
         functionParameters: BinaryData.FromString("""
@@ -41,16 +47,19 @@ public static class InputTools
                 },
               "required": ["text"]
           }
-          """)
+          """),
+        strictModeEnabled: true
     );
 
 
-    public static readonly ChatTool GetAllKeyNamesTool = ChatTool.CreateFunctionTool(
+    public static readonly ResponseTool GetAllKeyNamesTool = ResponseTool.CreateFunctionTool(
         functionName: nameof(GetAllKeyNames),
-        functionDescription: "Get all available key names from SharpHook KeyCode"
+        functionDescription: "Get all available key names from SharpHook KeyCode",
+        functionParameters: null,
+        strictModeEnabled: true
     );
 
-    public static readonly ChatTool LongPressKeyTool = ChatTool.CreateFunctionTool(
+    public static readonly ResponseTool LongPressKeyTool = ResponseTool.CreateFunctionTool(
         functionName: nameof(LongPressKey),
         functionDescription: "Simulate a key press and release after a specified duration (long press)",
         functionParameters: BinaryData.FromString("""
@@ -68,10 +77,11 @@ public static class InputTools
                 },
               "required": ["key", "duration_ms"]
           }
-        """)
+        """),
+        strictModeEnabled: true
     );
 
-    public static readonly ChatTool PressKeyTool = ChatTool.CreateFunctionTool(
+    public static readonly ResponseTool PressKeyTool = ResponseTool.CreateFunctionTool(
         functionName: nameof(PressKey),
         functionDescription: "Simulate a key press and release",
         functionParameters: BinaryData.FromString("""
@@ -85,10 +95,11 @@ public static class InputTools
                         },
                 "required": ["key"]
             }
-        """)
+        """),
+        strictModeEnabled: true
     );
 
-    public static readonly ChatTool PressKeyCombinationTool = ChatTool.CreateFunctionTool(
+    public static readonly ResponseTool PressKeyCombinationTool = ResponseTool.CreateFunctionTool(
         functionName: nameof(PressKeyCombination),
         functionDescription: "Simulate a key combination (modifier + key)",
         functionParameters: BinaryData.FromString("""
@@ -100,35 +111,46 @@ public static class InputTools
                 },
             "required": ["modifier","key"]
         }
-        """)
+        """),
+        strictModeEnabled: true
     );
 
-    public static readonly ChatTool DoubleClickTool = ChatTool.CreateFunctionTool(
+    public static readonly ResponseTool DoubleClickTool = ResponseTool.CreateFunctionTool(
         functionName: nameof(DoubleClick),
-        functionDescription: "Perform a double click"
+        functionDescription: "Perform a double click",
+        functionParameters: null,
+        strictModeEnabled: true
     );
 
-    public static readonly ChatTool TripleClickTool = ChatTool.CreateFunctionTool(
+    public static readonly ResponseTool TripleClickTool = ResponseTool.CreateFunctionTool(
         functionName: nameof(TripleClick),
-        functionDescription: "Perform a triple click"
+        functionDescription: "Perform a triple click",
+        functionParameters: null,
+        strictModeEnabled: true
     );
 
-    public static readonly ChatTool LeftClickTool = ChatTool.CreateFunctionTool(
+    public static readonly ResponseTool LeftClickTool = ResponseTool.CreateFunctionTool(
         functionName: nameof(LeftClick),
-        functionDescription: "Simulate left mouse click"
+        functionDescription: "Simulate left mouse click",
+        functionParameters: null,
+        strictModeEnabled: true
     );
 
-    public static readonly ChatTool RightClickTool = ChatTool.CreateFunctionTool(
+    public static readonly ResponseTool RightClickTool = ResponseTool.CreateFunctionTool(
         functionName: nameof(RightClick),
-        functionDescription: "Simulate right mouse click"
+        functionDescription: "Simulate right mouse click",
+        functionParameters: null,
+        strictModeEnabled: true
     );
 
-    public static readonly ChatTool MiddleClickTool = ChatTool.CreateFunctionTool(
+    public static readonly ResponseTool MiddleClickTool = ResponseTool.CreateFunctionTool(
         functionName: nameof(MiddleClick),
-        functionDescription: "Simulate middle mouse click"
+        functionDescription: "Simulate middle mouse click",
+        functionParameters: null,
+        strictModeEnabled: true
     );
 
-    public static readonly ChatTool ClickAtTool = ChatTool.CreateFunctionTool(
+    public static readonly ResponseTool ClickAtTool = ResponseTool.CreateFunctionTool(
         functionName: nameof(ClickAt),
         functionDescription: "Simulate a mouse left-click at the given coordinates",
         functionParameters: BinaryData.FromString("""
@@ -140,11 +162,12 @@ public static class InputTools
                   },
               "required": ["x", "y"]
           }
-          """)
+          """),
+        strictModeEnabled: true
     );
 
 
-    public static readonly ChatTool ClickAndDragTool = ChatTool.CreateFunctionTool(
+    public static readonly ResponseTool ClickAndDragTool = ResponseTool.CreateFunctionTool(
         functionName: nameof(ClickAndDrag),
         functionDescription: "Click and drag the mouse from a start coordinate to an end coordinate",
         functionParameters: BinaryData.FromString("""
@@ -158,10 +181,11 @@ public static class InputTools
                   },
               "required": ["startX", "startY", "endX", "endY"]
           }
-        """)
+        """),
+        strictModeEnabled: true
     );
 
-    public static readonly ChatTool MoveMouseTool = ChatTool.CreateFunctionTool(
+    public static readonly ResponseTool MoveMouseTool = ResponseTool.CreateFunctionTool(
         functionName: nameof(MoveMouse),
         functionDescription: "Move mouse pointer to absolute coordinates",
         functionParameters: BinaryData.FromString("""
@@ -174,10 +198,11 @@ public static class InputTools
                     },
             "required": ["x","y"]
         }
-        """)
+        """),
+        strictModeEnabled: true
     );
 
-    public static readonly ChatTool MoveMouseRelativeTool = ChatTool.CreateFunctionTool(
+    public static readonly ResponseTool MoveMouseRelativeTool = ResponseTool.CreateFunctionTool(
         functionName: nameof(MoveMouseRelative),
         functionDescription: "Move mouse pointer relative to current position",
         functionParameters: BinaryData.FromString("""
@@ -189,10 +214,11 @@ public static class InputTools
                 },
                 "required": ["dx","dy"]
             }
-        """)
+        """),
+        strictModeEnabled: true
     );
 
-    public static readonly ChatTool WheelMouseTool = ChatTool.CreateFunctionTool(
+    public static readonly ResponseTool WheelMouseTool = ResponseTool.CreateFunctionTool(
         functionName: nameof(WheelMouse),
         functionDescription: "Scroll mouse wheel",
         functionParameters: BinaryData.FromString("""
@@ -204,7 +230,8 @@ public static class InputTools
                     },
                 "required": ["rotation","direction"]
             }
-        """)
+        """),
+        strictModeEnabled: true
     );
 
     public static string GetCurrentCursorPosition()

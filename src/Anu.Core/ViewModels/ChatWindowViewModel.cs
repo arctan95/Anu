@@ -114,6 +114,7 @@ public partial class ChatWindowViewModel : ViewModelBase
 
     public void EndAssistantResponse()
     {
+        MessageStreaming = false;
         _assistantMessageInProgress = null;
     }
 
@@ -158,7 +159,6 @@ public partial class ChatWindowViewModel : ViewModelBase
     public void EndConversation()
     {
         MessageRequested = false;
-        MessageStreaming = false;
         if (!string.IsNullOrEmpty(LastRequestId))
         {
             ChatService.StopAIResponseStream(LastRequestId);
