@@ -1,8 +1,8 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:viewModels1="clr-namespace:Anu.Core.ViewModels"
+        xmlns:viewModels="clr-namespace:Anu.Core.ViewModels"
         x:Class="Anu.Core.Views.SettingsWindow"
-        x:DataType="viewModels1:SettingsWindowViewModel"
+        x:DataType="viewModels:SettingsWindowViewModel"
         Title="Settings"
         Width="550"
         SizeToContent="Height"
@@ -44,7 +44,7 @@
                         BorderThickness="1"
                         Margin="0 4 0 0"
                         Padding="8">
-                        <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+                        <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
                             <TextBlock Grid.Row="0" Grid.Column="0" Margin="10 5">Endpoint:</TextBlock>
                             <TextBox Grid.Row="0" Grid.Column="1" Margin="10 5" HorizontalAlignment="Stretch"
                                      Text="{Binding Endpoint}" />
@@ -66,6 +66,10 @@
                             <TextBox Grid.Row="4" Grid.Column="1" Margin="10 5" HorizontalAlignment="Stretch"
                                      Watermark="Write your prompt here..." Text="{Binding SystemPrompt}" Height="100"
                                      AcceptsReturn="True" TextWrapping="Wrap" />
+                            <TextBlock Grid.Row="5" Grid.Column="0" Margin="10">Mcp servers:</TextBlock>
+
+                            <Button Grid.Row="5" Grid.Column="1" Margin="10 5" Content="Edit Configuration"
+                                                Command="{Binding EditMcpServersCommand}" />
                         </Grid>
                     </Border>
                 </TabItem>

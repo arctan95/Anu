@@ -133,7 +133,7 @@ public partial class ChatWindowViewModel : ViewModelBase
         }
     }
 
-    public async Task AskQuestion(bool enableConversationMemory = false)
+    public async Task AskAI(bool enableConversationMemory = false)
     {
         await ChatService.Ask(enableConversationMemory);
     }
@@ -167,7 +167,7 @@ public partial class ChatWindowViewModel : ViewModelBase
 
     public async Task SendMessage()
     {
-        await AskQuestion(true);
+        await AskAI(true);
     }
 
     public void OnMouseMoved(int mouseX, int mouseY)

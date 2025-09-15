@@ -1,11 +1,16 @@
 using System;
 using System.Reflection;
+using System.Text.Json;
+using System.Threading.Tasks;
+using System.Windows.Input;
 using Avalonia.Controls.Converters;
 using Avalonia.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Anu.Core.Models;
 using Anu.Core.Services;
 using Anu.Core.Utilities;
+using Anu.Core.Views;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using SharpHook.Native;
 
@@ -13,8 +18,10 @@ namespace Anu.Core.ViewModels;
 
 public partial class SettingsWindowViewModel : ViewModelBase
 {
-    private readonly ConfigService? _configService;
+    private readonly AppConfigService? _configService;
+    private readonly McpConfigService? _mcpConfigService;
     private readonly IAutostartManager? _autostartManager;
+    private readonly TextEditorWindowViewModel? _textEditorWindowViewModel;
 
     [ObservableProperty]
     private string? _systemPrompt;
@@ -68,7 +75,9 @@ public partial class SettingsWindowViewModel : ViewModelBase
     private string _version = $"Version {Assembly.GetEntryAssembly()?.GetName().Version}";
     [ObservableProperty]
     private string _copyright = $"Copyright © 2025-{DateTime.Now.Year} arctan95";
-
+    
+    public ICommand EditMcpServersCommand { get; }
+    
     partial void OnAutoCheckForUpdatesChanged(bool value) => _configService?.Set("general.auto_check_for_updates", value);
 
     partial void OnStartOnBootChanged(bool value)
@@ -95,16 +104,20 @@ public partial class SettingsWindowViewModel : ViewModelBase
 
     public SettingsWindowViewModel()
     {
-        _configService = ServiceProviderBuilder.ServiceProvider?.GetRequiredService<ConfigService>();
+        _configService = ServiceProviderBuilder.ServiceProvider?.GetRequiredService<AppConfigService>();
+        _mcpConfigService = ServiceProviderBuilder.ServiceProvider?.GetRequiredService<McpConfigService>();
         _autostartManager = ServiceProviderBuilder.ServiceProvider?.GetRequiredService<IAutostartManager>();
+        _textEditorWindowViewModel = ServiceProviderBuilder.ServiceProvider?.GetRequiredService<TextEditorWindowViewModel>();
 
+        EditMcpServersCommand = new AsyncRelayCommand(EditMcpServers);
+        
         StartOnBoot = Convert.ToBoolean(_configService?.Get<bool>("general.start_on_boot"));
         AutoCheckForUpdates = Convert.ToBoolean(_configService?.Get<bool>("general.auto_check_for_updates"));
         SystemPrompt = _configService?.Get<string>("ai.default_system_prompt") ?? string.Empty;
         UserPrompt = _configService?.Get<string>("ai.default_user_prompt") ?? string.Empty;
-        ApiKey = _configService?.Get<string>("ai.api_key") ?? string.Empty;
-        Endpoint = _configService?.Get<string>("ai.endpoint") ?? string.Empty;
-        Model = _configService?.Get<string>("ai.model") ?? string.Empty;
+        ApiKey = _configService?.Get<string>("ai.api_key")?.Trim() ?? string.Empty;
+        Endpoint = _configService?.Get<string>("ai.endpoint")?.Trim() ?? string.Empty;
+        Model = _configService?.Get<string>("ai.model")?.Trim() ?? string.Empty;
 
         var chatWindowHotkey = _configService?.Get<ushort[]>("control.open_chat_window");
         var screenshotHotKey = _configService?.Get<ushort[]>("control.take_screenshot");
@@ -136,6 +149,43 @@ public partial class SettingsWindowViewModel : ViewModelBase
         {
             QuitAppKey = PlatformKeyGestureConverter.ToPlatformString(new KeyGesture(KeyConvertor.ToKey((KeyCode)quitAppHotkey[1]), KeyConvertor.ToKeyModifier((ModifierMask)quitAppHotkey[0])));
         }
+        
+    }
+
+    private async Task EditMcpServers()
+    {
+        if (_textEditorWindowViewModel != null && _mcpConfigService != null)
+        {
+            _textEditorWindowViewModel.FilePath = _mcpConfigService.McpConfigFilePath;
+            _textEditorWindowViewModel.Text = await _mcpConfigService.ReadMcpConfigJson();
+            var textEditorWindow = new TextEditorWindow
+            {
+                DataContext = _textEditorWindowViewModel,
+                Title="Edit Mcp servers",
+                Topmost = true
+            };
+            
+            textEditorWindow.Show();
+        }
+    }
+
+
+    public async Task<McpConfig> LoadMcpConfigAsync()
+    {
+        if (_mcpConfigService != null)
+        {
+            try
+            {
+                var json = await _mcpConfigService.ReadMcpConfigJson();
+                return JsonSerializer.Deserialize<McpConfig>(json, JsonContext.Default.McpConfig)
+                       ?? new McpConfig();
+            }
+            catch (Exception)
+            {
+                // ignore
+            }
+        }
+        return new McpConfig();
     }
 
     public void RecordHotKey(string functionName, GlobalHotkey hotkey)

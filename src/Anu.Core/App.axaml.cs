@@ -34,7 +34,7 @@ public partial class App : Application
     private IClassicDesktopStyleApplicationLifetime? _lifetime;
     private ChatWindowViewModel? _chatWindowViewModel;
     private SettingsWindowViewModel? _settingsWindowViewModel;
-    private ConfigService? _configService;
+    private AppConfigService? _configService;
     private Window? _chatWindow;
     private SparkleUpdater? _sparkle;
     private double _delta = 25;
@@ -54,7 +54,7 @@ public partial class App : Application
         _chatWindowViewModel = ServiceProviderBuilder.ServiceProvider?.GetRequiredService<ChatWindowViewModel>();
         _settingsWindowViewModel =
             ServiceProviderBuilder.ServiceProvider?.GetRequiredService<SettingsWindowViewModel>();
-        _configService = ServiceProviderBuilder.ServiceProvider?.GetRequiredService<ConfigService>();
+        _configService = ServiceProviderBuilder.ServiceProvider?.GetRequiredService<AppConfigService>();
         DataContext = this;
     }
 
@@ -147,7 +147,7 @@ public partial class App : Application
 
     private void AskAI()
     {
-        _chatWindowViewModel?.AskQuestion();
+        _chatWindowViewModel?.AskAI();
     }
 
     public async Task<Bitmap?> TakeScreenshotAsync()
