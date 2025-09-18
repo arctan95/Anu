@@ -20,9 +20,11 @@ class Program
             .AddSingleton<IWindowConfigurator, WindowConfigurator>()
             .AddSingleton<ISystemHotKeyRegister, SystemHotkeyRegister>()
             .AddSingleton<IAutostartManager, AutostartManager>()
-            .AddSingleton<ConfigService>()
+            .AddSingleton<AppConfigService>()
+            .AddSingleton<McpConfigService>()
             .AddSingleton<ChatWindowViewModel>()
             .AddSingleton<SettingsWindowViewModel>()
+            .AddSingleton<TextEditorWindowViewModel>()
             .Build();
 
         BuildAvaloniaApp()

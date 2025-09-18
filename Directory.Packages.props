@@ -7,6 +7,7 @@
     <!-- Avalonia packages -->
     <!-- Important: keep version in sync! -->
     <PackageVersion Include="Avalonia" Version="11.2.8" />
+    <PackageVersion Include="Avalonia.AvaloniaEdit" Version="11.2.8" />
     <PackageVersion Include="Avalonia.Fonts.Inter" Version="11.2.8" />
     <PackageVersion Include="Avalonia.Diagnostics" Version="11.2.8" />
     <PackageVersion Include="Avalonia.Desktop" Version="11.2.8" />

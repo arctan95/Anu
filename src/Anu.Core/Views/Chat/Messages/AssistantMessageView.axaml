@@ -8,7 +8,7 @@
                                       Margin="8 12"
                                       Markdown="{Binding Message}">
         <views:CustomMarkdownScrollViewer.Styles>
-            <StyleInclude Source="/Styles/MarkdownStyles.axaml" />
+            <StyleInclude Source="avares://Anu.Core/Styles/MarkdownStyles.axaml" />
         </views:CustomMarkdownScrollViewer.Styles>
     </views:CustomMarkdownScrollViewer>
 </UserControl>

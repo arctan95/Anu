@@ -1,0 +1,32 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:edit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+        xmlns:viewModels="clr-namespace:Anu.Core.ViewModels"
+        x:Class="Anu.Core.Views.TextEditorWindow"
+        x:DataType="viewModels:TextEditorWindowViewModel"
+        Height="600"
+        Width="800"
+        MinHeight="300"
+        MinWidth="550">
+    <Panel>
+        <ExperimentalAcrylicBorder IsHitTestVisible="False">
+            <ExperimentalAcrylicBorder.Material>
+                <ExperimentalAcrylicMaterial
+                    BackgroundSource="Digger"
+                    TintColor="{DynamicResource App.BackgroundColor}"
+                    TintOpacity="1"
+                    MaterialOpacity="0.65" />
+            </ExperimentalAcrylicBorder.Material>
+        </ExperimentalAcrylicBorder>
+        <Border Margin="4">
+            <edit:TextEditor Name="EmbeddedTextEditor"
+                             ShowLineNumbers="True"
+                             FontFamily="Cascadia Code,Consolas,Menlo,Monospace"
+                             SyntaxHighlighting=""
+                             DocumentChanged="EmbeddedTextEditor_OnDocumentChanged"
+                             HorizontalScrollBarVisibility="Auto"
+                             VerticalScrollBarVisibility="Auto">
+            </edit:TextEditor>
+        </Border>
+    </Panel>
+</Window>

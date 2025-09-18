@@ -5,18 +5,18 @@ using System.Text.Json.Nodes;
 using System.Text.Json.Serialization.Metadata;
 using Avalonia.Platform;
 using Anu.Core.Models;
+using Anu.Core.Utilities;
 
 namespace Anu.Core.Services;
 
-public class ConfigService
+public class AppConfigService
 {
     private readonly string _configFilePath;
-    private JsonObject _configRoot;
+    private readonly JsonObject _configRoot;
 
-    public ConfigService()
+    public AppConfigService()
     {
-        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        var configDirectory = Path.Combine(home, ".anu");
+        var configDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".anu");
         Directory.CreateDirectory(configDirectory);
 
         _configFilePath = Path.Combine(configDirectory, "settings.json");
@@ -90,12 +90,12 @@ public class ConfigService
             current[keys[^1]] = JsonSerializer.SerializeToNode(value, typeInfo);
         else
             throw new NotSupportedException($"Type {value.GetType()} is not supported for serialization.");
-        Save();
+        SaveConfig();
     }
 
-    public void Save()
+    public void SaveConfig()
     {
         var json = _configRoot.ToJsonString(JsonContext.Default.Options);
-        File.WriteAllText(_configFilePath, json);
+        _ = FileUtil.SaveFileAsync(_configFilePath, json);
     }
 }
