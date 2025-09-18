@@ -100,7 +100,7 @@ public partial class ChatWindow : Window
     {
         if (Application.Current is App app)
         {
-            app.HideChatWindow();
+            app.CloseChatWindow();
         }
     }
 

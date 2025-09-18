@@ -8,6 +8,7 @@ using Avalonia.Threading;
 using Anu.Core.Services;
 using Anu.Core.Utilities;
 using Anu.Core.ViewModels;
+using Avalonia;
 
 namespace Anu.Core.Views;
 
@@ -28,6 +29,7 @@ public partial class SettingsWindow : Window
     public SettingsWindow()
     {
         InitializeComponent();
+        Closing += OnClosing;
     }
 
     public void OnTextBoxFocused(object? sender, GotFocusEventArgs e)
@@ -74,6 +76,14 @@ public partial class SettingsWindow : Window
         {
             textBox.Watermark = "Press shortcut";
             GlobalHotkeyRecorder.StopRecording();
+        }
+    }
+    
+    private void OnClosing(object? sender, WindowClosingEventArgs e)
+    {
+        if (Application.Current is App app)
+        {
+            app.CloseSettingsWindow();
         }
     }
 

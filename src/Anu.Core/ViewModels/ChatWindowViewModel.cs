@@ -210,7 +210,7 @@ public partial class ChatWindowViewModel : ViewModelBase
     {
         if (Application.Current is App app)
         {
-            app.HideChatWindow();
+            app.CloseChatWindow();
         }
     }
 
