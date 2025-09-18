@@ -36,6 +36,7 @@ public partial class App : Application
     private SettingsWindowViewModel? _settingsWindowViewModel;
     private AppConfigService? _configService;
     private Window? _chatWindow;
+    private Window? _settingsWindow;
     private SparkleUpdater? _sparkle;
     private double _delta = 25;
 
@@ -329,17 +330,16 @@ public partial class App : Application
     {
         Dispatcher.UIThread.InvokeAsync(() =>
         {
-            if (_settingsWindowViewModel is { SettingsWindowShown: false })
+            if (_settingsWindow == null)
             {
-                var window = new SettingsWindow
+                _settingsWindow = new SettingsWindow
                 {
                     Topmost = true,
                     Background = Brushes.Transparent,
                     TransparencyLevelHint = [WindowTransparencyLevel.AcrylicBlur, WindowTransparencyLevel.Blur],
                     DataContext = _settingsWindowViewModel
                 };
-                window.Show();
-                _settingsWindowViewModel.SettingsWindowShown = true;
+                _settingsWindow.Show();
             }
         });
     }
