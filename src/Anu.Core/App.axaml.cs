@@ -77,7 +77,7 @@ public partial class App : Application
             true);
         GlobalHotkeyManager.BindHotkey("toggle_follow_pointer", ModifierMask.None, KeyCode.VcLeftAlt,
             ToggleFollowPointer, true);
-        GlobalHotkeyManager.BindHotkey("hide_chat_window", ModifierMask.None, KeyCode.VcEscape, HideChatWindow);
+        GlobalHotkeyManager.BindHotkey("close_chat_window", ModifierMask.None, KeyCode.VcEscape, CloseChatWindow);
         GlobalHotkeyManager.BindHotkey("scroll_up", ModifierMask.LeftCtrl | ModifierMask.LeftAlt, KeyCode.VcUp,
             () => ManualScrollContent(new Vector(0, -_delta)));
         GlobalHotkeyManager.BindHotkey("scroll_down", ModifierMask.LeftCtrl | ModifierMask.LeftAlt, KeyCode.VcDown,
@@ -305,7 +305,7 @@ public partial class App : Application
         }
     }
 
-    public void HideChatWindow()
+    public void CloseChatWindow()
     {
         Dispatcher.UIThread.InvokeAsync(() =>
         {
@@ -314,11 +314,20 @@ public partial class App : Application
         });
     }
 
+    public void CloseSettingsWindow()
+    {
+        Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            _settingsWindow?.Close();
+            _settingsWindow = null;
+        });
+    }
+
     public void ToggleShowChatWindow()
     {
         if (_chatWindow != null)
         {
-            HideChatWindow();
+            CloseChatWindow();
         }
         else
         {
@@ -339,8 +348,8 @@ public partial class App : Application
                     TransparencyLevelHint = [WindowTransparencyLevel.AcrylicBlur, WindowTransparencyLevel.Blur],
                     DataContext = _settingsWindowViewModel
                 };
-                _settingsWindow.Show();
             }
+            _settingsWindow?.Show();
         });
     }
 
@@ -439,7 +448,7 @@ public partial class App : Application
         }
         else
         {
-            HideChatWindow();
+            CloseChatWindow();
         }
     }
 
