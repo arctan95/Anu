@@ -2,7 +2,6 @@ using System;
 using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using Avalonia.Controls.Converters;
 using Avalonia.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -10,7 +9,7 @@ using Anu.Core.Models;
 using Anu.Core.Services;
 using Anu.Core.Utilities;
 using Anu.Core.Views;
-using CommunityToolkit.Mvvm.Input;
+using Avalonia.Controls;
 using Microsoft.Extensions.DependencyInjection;
 using SharpHook.Native;
 
@@ -48,8 +47,6 @@ public partial class SettingsWindowViewModel : ViewModelBase
     [ObservableProperty]
     private string? _quitAppKey;
     [ObservableProperty]
-    private bool _settingsWindowShown;
-    [ObservableProperty]
     private bool _autoCheckForUpdates;
     [ObservableProperty]
     private bool _startOnBoot;
@@ -75,8 +72,6 @@ public partial class SettingsWindowViewModel : ViewModelBase
     private string _version = $"Version {Assembly.GetEntryAssembly()?.GetName().Version}";
     [ObservableProperty]
     private string _copyright = $"Copyright © 2025-{DateTime.Now.Year} arctan95";
-    
-    public ICommand EditMcpServersCommand { get; }
     
     partial void OnAutoCheckForUpdatesChanged(bool value) => _configService?.Set("general.auto_check_for_updates", value);
 
@@ -108,8 +103,6 @@ public partial class SettingsWindowViewModel : ViewModelBase
         _mcpConfigService = ServiceProviderBuilder.ServiceProvider?.GetRequiredService<McpConfigService>();
         _autostartManager = ServiceProviderBuilder.ServiceProvider?.GetRequiredService<IAutostartManager>();
         _textEditorWindowViewModel = ServiceProviderBuilder.ServiceProvider?.GetRequiredService<TextEditorWindowViewModel>();
-
-        EditMcpServersCommand = new AsyncRelayCommand(EditMcpServers);
         
         StartOnBoot = Convert.ToBoolean(_configService?.Get<bool>("general.start_on_boot"));
         AutoCheckForUpdates = Convert.ToBoolean(_configService?.Get<bool>("general.auto_check_for_updates"));
@@ -152,7 +145,7 @@ public partial class SettingsWindowViewModel : ViewModelBase
         
     }
 
-    private async Task EditMcpServers()
+    public async Task EditMcpServers(Window window)
     {
         if (_textEditorWindowViewModel != null && _mcpConfigService != null)
         {
@@ -165,7 +158,7 @@ public partial class SettingsWindowViewModel : ViewModelBase
                 Topmost = true
             };
             
-            textEditorWindow.Show();
+            await textEditorWindow.ShowDialog(window);
         }
     }
 

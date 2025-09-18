@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Controls.Converters;
@@ -76,14 +77,18 @@ public partial class SettingsWindow : Window
         }
     }
 
-    protected override void OnClosing(WindowClosingEventArgs e)
+    private async void OnEditMcpServersClicked(object? sender, RoutedEventArgs e)
     {
-        if (DataContext is SettingsWindowViewModel viewModel)
+        try
         {
-            viewModel.SettingsWindowShown = false;
+            if (DataContext is SettingsWindowViewModel viewModel)
+            {
+                await viewModel.EditMcpServers(this);
+            }
         }
-
-        base.OnClosing(e);
+        catch (Exception)
+        {
+            // ignored
+        }
     }
-    
 }
