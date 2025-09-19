@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Anu.Core.Models;
 
-[JsonSourceGenerationOptions(WriteIndented = true, PropertyNameCaseInsensitive = true)]
+[JsonSourceGenerationOptions(WriteIndented = true)]
 [JsonSerializable(typeof(string))]
 [JsonSerializable(typeof(bool))]
 [JsonSerializable(typeof(ushort[]))]

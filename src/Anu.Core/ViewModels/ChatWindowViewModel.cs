@@ -1,16 +1,21 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Anu.Core.Models;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Anu.Core.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Anu.Core.ViewModels;
 
 public partial class ChatWindowViewModel : ViewModelBase
 {
+    private readonly McpConfigService? _mcpConfigService;
+    
     [ObservableProperty]
     private Bitmap? _imageSource;
     [ObservableProperty]
@@ -21,6 +26,8 @@ public partial class ChatWindowViewModel : ViewModelBase
     private bool _messageRequested;
     [ObservableProperty]
     private bool _messageStreaming;
+    [ObservableProperty]
+    private Dictionary<string, McpServer>? _mcpServers;
     [ObservableProperty]
     private int _cursorPositionX;
     [ObservableProperty]
@@ -59,9 +66,30 @@ public partial class ChatWindowViewModel : ViewModelBase
     private bool _arcylicEnabled;
 
     public ObservableCollection<ChatMessageViewModel> Messages { get; } = new();
+    public ObservableCollection<MenuViewModel> McpServerMenuItems { get; } = new();
 
     private ChatMessageViewModel? _assistantMessageInProgress;
 
+    public ChatWindowViewModel()
+    {
+        _mcpConfigService = ServiceProviderBuilder.ServiceProvider?.GetRequiredService<McpConfigService>();
+    }
+
+    partial void OnMcpServersChanged(Dictionary<string, McpServer>? mcpServers)
+    {
+        if (mcpServers != null)
+        {
+            McpServerMenuItems.Clear();
+            foreach (var kv in mcpServers)
+            {
+                McpServerMenuItems.Add(new MenuViewModel
+                {
+                    Header = kv.Key,
+                });
+            }
+        }
+    }
+    
     partial void OnIgnoreMouseEventsChanged(bool value)
     {
         ArcylicEnabled = !value;
@@ -236,6 +264,23 @@ public partial class ChatWindowViewModel : ViewModelBase
     public void ShowMissingApiKeyHint()
     {
         Messages.Add(ChatMessageViewModel.CreateAssistantMessage("Please configure your AI provider's API key in the settings."));
+    }
+
+    public async void LoadMcpServers()
+    {
+        try
+        {
+            if (_mcpConfigService != null)
+            {
+                var json = await _mcpConfigService.ReadMcpConfigJson();
+                var mcpConofig =  JsonSerializer.Deserialize<McpConfig>(json, JsonContext.Default.McpConfig);
+                McpServers = mcpConofig?.McpServers;
+            }
+        }
+        catch (Exception)
+        {
+            // ignore
+        }
     }
 
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Reflection;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia.Controls.Converters;
 using Avalonia.Input;
@@ -160,25 +159,6 @@ public partial class SettingsWindowViewModel : ViewModelBase
             
             await textEditorWindow.ShowDialog(window);
         }
-    }
-
-
-    public async Task<McpConfig> LoadMcpConfigAsync()
-    {
-        if (_mcpConfigService != null)
-        {
-            try
-            {
-                var json = await _mcpConfigService.ReadMcpConfigJson();
-                return JsonSerializer.Deserialize<McpConfig>(json, JsonContext.Default.McpConfig)
-                       ?? new McpConfig();
-            }
-            catch (Exception)
-            {
-                // ignore
-            }
-        }
-        return new McpConfig();
     }
 
     public void RecordHotKey(string functionName, GlobalHotkey hotkey)

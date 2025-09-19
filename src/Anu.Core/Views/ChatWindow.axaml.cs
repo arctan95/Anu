@@ -78,7 +78,16 @@ public partial class ChatWindow : Window
     protected override void OnOpened(EventArgs e)
     {
         DetectScreenSize();
+        LoadMcpServers();
         base.OnOpened(e);
+    }
+
+    private void LoadMcpServers()
+    {
+        if (DataContext is ChatWindowViewModel vm)
+        {
+            vm.LoadMcpServers();
+        }
     }
 
     private void DetectScreenSize()
