@@ -6,12 +6,12 @@
   <ItemGroup>
     <!-- Avalonia packages -->
     <!-- Important: keep version in sync! -->
-    <PackageVersion Include="Avalonia" Version="11.2.8" />
-    <PackageVersion Include="Avalonia.AvaloniaEdit" Version="11.2.8" />
-    <PackageVersion Include="Avalonia.Fonts.Inter" Version="11.2.8" />
-    <PackageVersion Include="Avalonia.Diagnostics" Version="11.2.8" />
-    <PackageVersion Include="Avalonia.Desktop" Version="11.2.8" />
-    <PackageVersion Include="Avalonia.Themes.Fluent" Version="11.2.8" />
+    <PackageVersion Include="Avalonia" Version="11.3.0" />
+    <PackageVersion Include="Avalonia.AvaloniaEdit" Version="11.3.0" />
+    <PackageVersion Include="Avalonia.Fonts.Inter" Version="11.3.0" />
+    <PackageVersion Include="Avalonia.Diagnostics" Version="11.3.0" />
+    <PackageVersion Include="Avalonia.Desktop" Version="11.3.0" />
+    <PackageVersion Include="Avalonia.Themes.Fluent" Version="11.3.0" />
     <PackageVersion Include="Clowd.Clipboard.Avalonia" Version="1.1.4" />
     <PackageVersion Include="Markdown.Avalonia" Version="11.0.3-a1" />
     <PackageVersion Include="Microsoft.Windows.CsWin32" Version="0.3.183">
