@@ -71,9 +71,9 @@ public partial class App : Application
     private void RegisterGlobalHotkeys()
     {
         // Predefined global hotkeys
-        GlobalHotkeyManager.BindHotkey("show_chat_window_activated", ModifierMask.None, KeyCode.VcLeftShift,
+        GlobalHotkeyManager.BindHotkey("show_chat_window_activated", ModifierMask.None, KeyCode.VcLeftControl,
             OpenChatWindowActivated, true);
-        GlobalHotkeyManager.BindHotkey("show_chat_window", ModifierMask.None, KeyCode.VcLeftControl, OpenChatWindow,
+        GlobalHotkeyManager.BindHotkey("show_chat_window", ModifierMask.None, KeyCode.VcLeftShift, OpenChatWindow,
             true);
         GlobalHotkeyManager.BindHotkey("toggle_follow_pointer", ModifierMask.None, KeyCode.VcLeftAlt,
             ToggleFollowPointer, true);
